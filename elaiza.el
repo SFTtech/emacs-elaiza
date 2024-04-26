@@ -19,27 +19,18 @@
 ;;
 ;;; Code:
 (require 'cl-lib)
-(require 'elaiza-request)
 (require 'elaiza-claude)
+(require 'elaiza-backends)
 
 ;; Variables
+(defcustom elaiza-available-backends 'nil
+  "Available ELIZA backends.
+See `elaiza-backends-integrations-alist' for a list of supported backends.")
 (defgroup elaiza
   nil
   "Use an LLM assistant."
   :group 'external
   :prefix 'elaiza)
-
-(defvar elaiza-debug 't "Log for debugging purposes to *elaiza log*.")
-
-(cl-defstruct elaiza-backend
-  "Struct for backend-specific dispatching."
-  name)
-
-(defvar elaiza-available-backends
-  (mapcar (lambda (backend)
-            (cons (format "%s" (elaiza-backend-name backend)) backend))
-          (list (make-elaiza-claude)))
-  "LLM backends that are available to ELAIZA.")
 
 (defvar elaiza-system-prompt
   "Your name is ELAIZA based on the early AI program ELIZA that is now part of Emacs' doctor.
@@ -50,6 +41,8 @@ Do not state this information."
 
 
 ;; Functions
+(elaiza-backends--add-integration (make-elaiza-claude))
+
 ;;;###autoload
 (defun elaiza (prompt backend-name)
   "Chat with ELAIZA.
@@ -141,3 +134,4 @@ Used as part of `after-change-functions' hook. LENGTH-BEFORE not used."
 
 (provide 'elaiza)
 ;;; elaiza.el ends here
+

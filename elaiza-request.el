@@ -16,6 +16,7 @@
 
 (require 'cl-lib)
 (require 'url-http)
+(require 'elaiza-utils)
 
 (cl-defgeneric elaiza-request--encode (messages system-prompt backend)
   "Encode MESSAGES and SYSTEM-PROMPT for BACKEND request.")
@@ -29,7 +30,7 @@ For resolving the streamed response ON-STREAMED-RESPONSE is used."
     (cl-multiple-value-bind (url url-request-extra-headers url-request-data)
         (elaiza-request--encode prompt system-prompt backend)
 
-      (when elaiza--debug
+      (when elaiza-debug
         (with-current-buffer (get-buffer-create "*elaiza-log*")
           (goto-char (point-max))
           (insert "\n\n" url-request-data))

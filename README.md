@@ -8,3 +8,11 @@ Add the following to your `packages.el`
 ``` emacs-lisp
 (package! elaiza :recipe (:host 'github :repo "SFTtech/emacs-elaiza" :branch "main")
 ```
+
+For now, to simply use all integrated backends use the following configuration in your `config.el`
+
+``` emacs-lisp
+(use-package! elaiza
+  :config (setq elaiza-available-backends
+  elaiza-backends-integrations-alist))
+```

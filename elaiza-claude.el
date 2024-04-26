@@ -16,8 +16,9 @@
 
 (require 'cl-lib)
 (require 'json)
-(require 'elaiza)
 (require 'elaiza-request)
+(require 'elaiza-backends)
+(require 'elaiza-utils)
 
 (defvar elaiza-claude-models
   (list
@@ -54,7 +55,7 @@ See: https://docs.anthropic.com/claude/docs/models-overview")
    :host "https://api.anthropic.com"
    :user "elaiza"))
 
-(cl-defmethod elaiza-request--encode (messages system-prompt (elaiza--backend elaiza-claude))
+(cl-defmethod elaiza-request--encode (messages system-prompt (elaiza-backend elaiza-claude))
   "Send MESSAGES to backend ELAIZA--BACKEND: Anthropic's Claude.
 
 Add SYSTEM-PROMPT if non-nil.
@@ -68,7 +69,7 @@ See https://docs.anthropic.com/claude/reference/getting-started-with-the-api."
                 (:stream . t)
                 (:messages . ,messages)))
         (url "https://api.anthropic.com/v1/messages"))
-    (when elaiza--debug
+    (when elaiza-debug
       (message "Sending prompt to %s with %s max tokens"
                (elaiza-claude-model elaiza--backend)
                (elaiza-claude-max_tokens elaiza--backend)))
@@ -76,7 +77,7 @@ See https://docs.anthropic.com/claude/reference/getting-started-with-the-api."
       (push `(:system . ,system-prompt) body))
     (list url headers (encode-coding-string (json-encode body) 'utf-8))))
 
-(cl-defmethod elaiza-request--parse-streamed-response (message-delta (elaiza--backend elaiza-claude))
+(cl-defmethod elaiza-request--parse-streamed-response (message-delta (elaiza-backend elaiza-claude))
   "Parse a partial stream response (MESSAGE-DELTA) from ELAIZA--BACKEND Claude."
   (when (and message-delta
              (string-match "\"text_delta\",\"text\":\\(.*?\\)}" message-delta))

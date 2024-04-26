@@ -9,7 +9,7 @@
 ;; Version: 0.0.1
 ;; Package-Requires: ((emacs "29.1"))
 ;; Homepage: https://github.com/SFTtech/emacs-elaiza
-;; SPDX-License-Identifier: AGPL-3.0-only
+;; SPDX-License-Identifier: GPL-3.0-only
 ;;
 ;; This file is not part of GNU Emacs.
 ;;

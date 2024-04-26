@@ -4,7 +4,7 @@
 ;;
 ;; Author: Alessandro Wollek <contact@wollek.ai>
 ;; Homepage: https://github.com/SFTtech/emacs-elaiza
-;; SPDX-License-Identifier: AGPL-3.0-only
+;; SPDX-License-Identifier: GPL-3.0-only
 ;;
 ;; This file is not part of GNU Emacs.
 ;;

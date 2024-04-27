@@ -23,11 +23,10 @@
   "LLM backends that are incorporated into ELAIZA.")
 
 (defun elaiza-backends--add-integration (backend)
-  (setq elaiza-backends-integrations-alist
-        (cons (cons (format "%s" (elaiza-backend-name backend))
-                    backend)
-              elaiza-backends-integrations-alist)))
   "Add an LLM BACKEND integration to ELAIZA."
+  (push (list (cons (format "%s" (elaiza-backend-name backend))
+                    backend))
+        elaiza-backends-integrations-alist))
 
 (provide 'elaiza-backends)
 ;;; elaiza-backends.el ends here

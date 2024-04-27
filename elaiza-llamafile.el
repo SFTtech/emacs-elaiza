@@ -46,3 +46,6 @@ See https://github.com/ggerganov/llama.cpp/blob/master/examples/server/README.md
   (when (and message-delta
              (string-match "\"delta\":{\"content\":\\(.*?\\)}" message-delta))
     (decode-coding-string (json-read-from-string (match-string 1 message-delta)) 'utf-8)))
+
+(provide 'elaiza-llamafile)
+;;; elaiza-llamafile.el ends here

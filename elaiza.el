@@ -59,7 +59,7 @@ Send PROMPT to LLM (BACKEND-NAME)."
   (setq-local elaiza--backend (cdr (assoc backend-name elaiza-available-backends)))
   (add-text-properties 0 (length prompt) '(role "user") prompt)
   (insert "#+TITLE: " prompt "\n\n")
-  (elaiza--send (list `((:role . "user") (:content . prompt))) elaiza--backend))
+  (elaiza--send (list `((role . "user") (content . ,prompt))) elaiza--backend))
 
 (defun elaiza-continue-chat ()
   "Continue conversation inside *elaiza* buffer."

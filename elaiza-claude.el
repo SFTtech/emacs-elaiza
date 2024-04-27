@@ -56,7 +56,7 @@ See: https://docs.anthropic.com/claude/docs/models-overview")
    :user "elaiza"))
 
 (cl-defmethod elaiza-request--encode (messages system-prompt (elaiza-backend elaiza-claude))
-  "Send MESSAGES to backend ELAIZA--BACKEND: Anthropic's Claude.
+  "Send MESSAGES to backend ELAIZA-BACKEND: Anthropic's Claude.
 
 Add SYSTEM-PROMPT if non-nil.
 See https://docs.anthropic.com/claude/reference/getting-started-with-the-api."
@@ -78,7 +78,7 @@ See https://docs.anthropic.com/claude/reference/getting-started-with-the-api."
     (list url headers (encode-coding-string (json-encode body) 'utf-8))))
 
 (cl-defmethod elaiza-request--parse-streamed-response (message-delta (elaiza-backend elaiza-claude))
-  "Parse a partial stream response (MESSAGE-DELTA) from ELAIZA--BACKEND Claude."
+  "Parse a partial stream response (MESSAGE-DELTA) from ELAIZA-BACKEND Claude."
   (when (and message-delta
              (string-match "\"text_delta\",\"text\":\\(.*?\\)}" message-delta))
     (decode-coding-string (json-read-from-string (match-string 1 message-delta)) 'utf-8)))

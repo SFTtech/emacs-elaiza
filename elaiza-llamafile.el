@@ -25,7 +25,7 @@
 
 (cl-defmethod elaiza-request--encode (messages system-prompt (elaiza-backend
                                                               elaiza-llamafile))
-  "Send MESSAGES to backend ELAIZA--BACKEND: Llamafile.
+  "Send MESSAGES to backend ELAIZA-BACKEND: Llamafile.
 
 See https://platform.openai.com/docs/api-reference/chat
 Add SYSTEM-PROMPT if non-nil.

@@ -13,6 +13,8 @@
 ;;  All available LLM backend implementations.
 ;;
 ;;; Code:
+(require 'cl-lib)
+
 (cl-defstruct elaiza-backend
   "Struct for backend-specific dispatching."
   name)

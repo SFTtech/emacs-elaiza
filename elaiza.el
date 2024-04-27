@@ -20,6 +20,7 @@
 ;;; Code:
 (require 'cl-lib)
 (require 'elaiza-claude)
+(require 'elaiza-llamafile)
 (require 'elaiza-backends)
 
 ;; Variables
@@ -42,6 +43,7 @@ Do not state this information."
 
 ;; Functions
 (elaiza-backends--add-integration (make-elaiza-claude))
+(elaiza-backends--add-integration (make-elaiza-llamafile))
 
 ;;;###autoload
 (defun elaiza (prompt backend-name)

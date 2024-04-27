@@ -16,7 +16,7 @@
 
 (require 'cl-lib)
 (require 'json)
-(require 'elaiza)
+(require 'elaiza-backends)
 (require 'elaiza-request)
 
 (defvar elaiza-llamafile-models)

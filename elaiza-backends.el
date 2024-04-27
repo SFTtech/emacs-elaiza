@@ -27,6 +27,7 @@
         (cons (cons (format "%s" (elaiza-backend-name backend))
                     backend)
               elaiza-backends-integrations-alist)))
+  "Add an LLM BACKEND integration to ELAIZA."
 
 (provide 'elaiza-backends)
 ;;; elaiza-backends.el ends here

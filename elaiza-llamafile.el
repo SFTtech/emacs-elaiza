@@ -23,8 +23,7 @@
 
 (cl-defstruct (elaiza-llamafile (:include elaiza-backend (name "llamafile"))))
 
-(cl-defmethod elaiza-request--encode (messages system-prompt (elaiza-backend
-                                                              elaiza-llamafile))
+(cl-defmethod elaiza-request--encode (messages system-prompt (_ elaiza-llamafile))
   "Send MESSAGES to backend ELAIZA-BACKEND: Llamafile.
 
 See https://platform.openai.com/docs/api-reference/chat
@@ -41,7 +40,7 @@ See https://github.com/ggerganov/llama.cpp/blob/master/examples/server/README.md
         (url "http://localhost:8080/v1/chat/completions"))
     (list url headers (encode-coding-string (json-encode body) 'utf-8))))
 
-(cl-defmethod elaiza-request--parse-streamed-response (message-delta (elaiza-backend elaiza-llamafile))
+(cl-defmethod elaiza-request--parse-streamed-response (message-delta (_ elaiza-llamafile))
   "Parse a partial stream response (MESSAGE-DELTA) from ELAIZA-BACKEND Llamafile."
   (when (and message-delta
              (string-match "\"delta\":{\"content\":\\(.*?\\)}" message-delta))

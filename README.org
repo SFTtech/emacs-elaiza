@@ -1,6 +1,6 @@
 #+title: ELAIZA
-#+LAST_MODIFIED: [2024-04-29 Mon 13:30]
-#+HTML: <img src="images/logo.webp" align="right">
+#+LAST_MODIFIED: [2024-04-29 Mon 13:31]
+#+HTML: <img src="asstes/logo.webp" align="right">
 
 An updated Emacs doctor.
 This package provides a llm-agnostic backend with a chat interface.

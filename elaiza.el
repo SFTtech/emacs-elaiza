@@ -19,6 +19,7 @@
 ;;
 ;;; Code:
 (require 'cl-lib)
+(require 'elaiza-openai)
 (require 'elaiza-claude)
 (require 'elaiza-llamafile)
 (require 'elaiza-backends)
@@ -33,6 +34,9 @@
 (setq elaiza-backends-integrations-alist 'nil)
 (elaiza-backends--add-integration (make-elaiza-claude))
 (elaiza-backends--add-integration (make-elaiza-llamafile))
+(elaiza-backends--add-integration (make-elaiza-gpt-4-turbo))
+(elaiza-backends--add-integration (make-elaiza-gpt-4))
+(elaiza-backends--add-integration (make-elaiza-gpt-3.5-turbo))
 
 (defcustom elaiza-available-backends elaiza-backends-integrations-alist
   "Available ELIZA backends.

@@ -27,9 +27,9 @@
 
 (defun elaiza-backends--add-integration (backend)
   "Add an LLM BACKEND integration to ELAIZA."
-  (push (list (cons (format "%s" (elaiza-backend-name backend))
-                    backend))
-        elaiza-backends-integrations-alist))
+  (unless (assoc (elaiza-backend-name backend) elaiza-backends-integrations-alist)
+    (push (cons (elaiza-backend-name backend) backend)
+          elaiza-backends-integrations-alist)))
 
 (provide 'elaiza-backends)
 ;;; elaiza-backends.el ends here

@@ -1,4 +1,4 @@
-;;; elaiza-llamafile.el -*- lexical-binding: t; -*-
+;;; elaiza-llamafile.el --- Implementation for interacting with a llamafile -*- lexical-binding: t; -*-
 ;;
 ;; Copyright (C) 2024 Alessandro Wollek
 ;;

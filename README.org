@@ -1,0 +1,30 @@
+#+title: ELAIZA
+#+LAST_MODIFIED: [2024-04-29 Mon 13:30]
+#+HTML: <img src="images/logo.webp" align="right">
+
+An updated Emacs doctor.
+This package provides a llm-agnostic backend with a chat interface.
+
+* Supported Backends
+
+| Model           | Provider  | Sourcecode          |
+|-----------------+-----------+---------------------|
+| GPT 4           | OpenAI    | =elaiza-openai.el=    |
+| GPT 4.5 Turbo   | OpenAI    | =elaiza-openai.el=    |
+| GPT 3.5 Turbo   | OpenAI    | =elaiza-openai.el=    |
+| Claude 3 Opus   | Anthropic | =elaiza-claude.el=    |
+| Claude 3 Sonnet | Anthropic | =elaiza-claude.el=    |
+| Claude 3 Haiku  | Anthropic | =elaiza-claude.el=    |
+|                 | [[https://github.com/mozilla-Ocho/llamafile][Llamafile]] | =elaiza-llamafile.el= |
+
+* Installation
+
+** Doom Emacs
+Add the following to your =packages.el=
+#+begin_src emacs-lisp
+(package! elaiza :recipe (:host github :repo "SFTtech/emacs-elaiza" :branch "main"))
+#+end_src
+
+* Alternatives
+- [[https://github.com/karthink/gptel][karthink/gptel]] GPTel: A simple LLM client for Emacs
+- [[https://github.com/ahyatt/llm][ahyatt/llm]]: llm package for emacs

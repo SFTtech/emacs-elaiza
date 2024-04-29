@@ -44,18 +44,16 @@
 
 (defun elaiza-openai-get-api-key ()
   "Get OpenAI API key from auth-source, create if needed."
-  (let* ((host "https://api.openai.com")
-         (auth-source-creation-defaults
+  (let* ((auth-source-creation-defaults
           '((description . "OpenAI API key")))
          (auth-source-creation-prompts
           '((secret . "OpenAI API key for %h: ")))
          (auth-info (nth 0 (auth-source-search
                             :max 1
-                            :host host
-                            :user "elaiza"
-                            :create 't))))
+                            :host "api.openai.com"
+                            :user "elaiza"))))
     (if auth-info (auth-info-password auth-info)
-      (error "Could not retrieve API key"))))
+      (error "Could not retrieve API key\nSave machine api.openai.com port https login elaiza password <your-api-key> in ~/.authinfo.gpg"))))
 
 (cl-defmethod elaiza-request--encode (messages system-prompt (elaiza-backend elaiza-openai))
   "Send MESSAGES to ELAIZA-BACKEND OpenAI.

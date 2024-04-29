@@ -33,25 +33,17 @@
 
 (defun elaiza-claude-get-api-key ()
   "Get Claude API key from auth-source, create if needed."
-  (let* ((host "https://api.anthropic.com")
-         (auth-source-creation-defaults
+  (let* ((auth-source-creation-defaults
           '((description . "Claude API key")))
          (auth-source-creation-prompts
           '((secret . "Claude API key for %h: ")))
          (auth-info (nth 0 (auth-source-search
                             :max 1
-                            :host host
+                            :host "api.anthropic.com"
                             :user "elaiza"
-                            :create 't))))
+                            :create t))))
     (if auth-info (auth-info-password auth-info)
-      (error "Could not retrieve API key"))))
-
-(defun elaiza-claude-delete-api-key ()
-  "Delete Claude API key from auth-source."
-  (interactive)
-  (auth-source-delete
-   :host "https://api.anthropic.com"
-   :user "elaiza"))
+      (error "Could not retrieve API key\nSave machine api.anthropic.com port https login elaiza password <your-api-key> in ~/.authinfo.gpg"))))
 
 (cl-defmethod elaiza-request--encode (messages system-prompt (elaiza-backend elaiza-claude))
   "Send MESSAGES to backend ELAIZA-BACKEND: Anthropic's Claude.

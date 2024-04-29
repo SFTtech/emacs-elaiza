@@ -1,10 +1,11 @@
 #+title: ELAIZA
-#+LAST_MODIFIED: [2024-04-29 Mon 15:07]
+#+LAST_MODIFIED: [2024-04-29 Mon 18:26]
 #+HTML: <img src="./assets/logo.webp" width="256px" align="right" alt="A cyberpunk-themed scene with a sleeker, less muscular hacker bunny wearing dark glasses, a stylish futuristic hoodie, and a visible black tank top beneath. The bunny, now with a slimmer, more toned build, exhibits a concentrated look as it types on an old-fashioned computer terminal. A half-eaten orange carrot is next to the keyboard. The scene is vibrantly lit with neon lights, enhancing the cyberpunk ambiance. A speech bubble above the bunny reads 'What's up Doc?' in a bold, cyber font, and the screen displays 'ELAIZA' in green monospaced font."/>
 
 
 An updated Emacs doctor.
-This package provides a llm-agnostic backend with a chat interface.
+
+This package provides a llm-agnostic backend with a chat interface. To honor its [[https://en.wikipedia.org/wiki/ELIZA][ancestor]], you can also talk to a new AI-enhanced Emacs doctor via =M-x elaiza-doctor=.
 
 * Installation
 
@@ -13,6 +14,18 @@ Add the following to your =packages.el=
 #+begin_src emacs-lisp
 (package! elaiza :recipe (:host github :repo "SFTtech/emacs-elaiza" :branch "main"))
 #+end_src
+
+** API Keys
+To securely retrieve API keys, we use auth-source (see [[https://www.gnu.org/software/emacs/manual/html_mono/auth.html][manual: auth]]). Add the following to your =auth-sources= file, e.g., =.authinfo.gpg=, to store them:
+
+*** Example: OpenAI
+#+begin_example
+machine api.openai.com port https login elaiza password <your-api-key>
+#+end_example
+*** Example: Claude
+#+begin_example
+machine api.anthropic.com port https login elaiza password <yor-api-key>
+#+end_example
 
 * Usage
 Currently, two applications are available:

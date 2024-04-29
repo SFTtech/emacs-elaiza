@@ -21,17 +21,15 @@
 (require 'elaiza-utils)
 
 (defvar elaiza-claude-models
-  (list
-   '("Claude 3 Opus" . "claude-3-opus-20240229")  ; Most powerful model for highly complex tasks
-   '("Claude 3 Sonnet" . "claude-3-sonnet-20240229")  ; Ideal balance of intelligence and speed for enterprise workloads
-   '("Claude 3 Haiku" . "claude-3-haiku-20240307"))  ; Fastest and most compact model for near-instant responsiveness
-  "List of available claude models.
-See: https://docs.anthropic.com/claude/docs/models-overview")
+  '('("Claude 3 Opus" . "claude-3-opus-20240229")  ; Most powerful model for highly complex tasks
+    '("Claude 3 Sonnet" . "claude-3-sonnet-20240229")  ; Ideal balance of intelligence and speed for enterprise workloads
+    '("Claude 3 Haiku" . "claude-3-haiku-20240307"))  ; Fastest and most compact model for near-instant responsiveness
+  "List of available claude models, see: https://docs.anthropic.com/claude/docs/models-overview.")
 
 (cl-defstruct (elaiza-claude (:include elaiza-backend (name "claude")))
   (key nil)
   (model (cdr (assoc "Claude 3 Haiku" elaiza-claude-models)))
-  (max_tokens 10))
+  (max_tokens 4096))
 
 (defun elaiza-claude-get-api-key ()
   "Get Claude API key from auth-source, create if needed."
@@ -64,20 +62,20 @@ See https://docs.anthropic.com/claude/reference/getting-started-with-the-api."
                    ("anthropic-version" . "2023-06-01")
                    ("content-type" . "application/json")
                    ("accept-charset" . "utf-8")))
-        (body `((:model . ,(elaiza-claude-model elaiza--backend))
-                (:max_tokens . ,(elaiza-claude-max_tokens elaiza--backend))
-                (:stream . t)
-                (:messages . ,messages)))
+        (body (list (cons 'model (elaiza-claude-model elaiza-backend))
+                    (cons 'max_tokens (elaiza-claude-max_tokens elaiza-backend))
+                    (cons 'stream 't)
+                    (cons 'messages messages)))
         (url "https://api.anthropic.com/v1/messages"))
     (when elaiza-debug
       (message "Sending prompt to %s with %s max tokens"
-               (elaiza-claude-model elaiza--backend)
-               (elaiza-claude-max_tokens elaiza--backend)))
+               (elaiza-claude-model elaiza-backend)
+               (elaiza-claude-max_tokens elaiza-backend)))
     (when system-prompt
-      (push `(:system . ,system-prompt) body))
+      (push (cons 'system system-prompt) body))
     (list url headers (encode-coding-string (json-encode body) 'utf-8))))
 
-(cl-defmethod elaiza-request--parse-streamed-response (message-delta (elaiza-backend elaiza-claude))
+(cl-defmethod elaiza-request--parse-streamed-response (message-delta (_ elaiza-claude))
   "Parse a partial stream response (MESSAGE-DELTA) from ELAIZA-BACKEND Claude."
   (when (and message-delta
              (string-match "\"text_delta\",\"text\":\\(.*?\\)}" message-delta))

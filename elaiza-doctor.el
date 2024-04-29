@@ -13,7 +13,6 @@
 ;;  An updated Emacs Doctor
 ;;
 ;;; Code:
-(require 'doctor)
 (require 'elaiza)
 
 ;;;###autoload
@@ -48,8 +47,6 @@ finished talking, type RET twice.\n\n"))
     (add-text-properties 0 (length prompt) '(role "assistant") prompt)
     (insert prompt))
   (add-hook 'after-change-functions #'elaiza--mark-user-input))
-
-
 
 (provide 'elaiza-doctor)
 ;;; elaiza-doctor.el ends here

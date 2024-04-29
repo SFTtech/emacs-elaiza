@@ -22,6 +22,9 @@
 (defvar elaiza-backends-integrations-alist 'nil
   "LLM backends that are incorporated into ELAIZA.")
 
+(defvar elaiza--backend 'nil
+  "Default elaiza backend for current buffer.")
+
 (defun elaiza-backends--add-integration (backend)
   "Add an LLM BACKEND integration to ELAIZA."
   (push (list (cons (format "%s" (elaiza-backend-name backend))

@@ -66,7 +66,7 @@ Send PROMPT to LLM (BACKEND-NAME)."
 (defun elaiza-continue-chat ()
   "Continue conversation inside *elaiza* buffer."
   (interactive)
-  (if elaiza--backend
+  (if (boundp 'elaiza--backend)
       (progn
         (insert "\n")
         (elaiza--send (elaiza--split-text-by-role) elaiza--backend))

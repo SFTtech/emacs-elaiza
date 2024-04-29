@@ -24,14 +24,21 @@
 (require 'elaiza-backends)
 
 ;; Variables
-(defcustom elaiza-available-backends 'nil
-  "Available ELIZA backends.
-See `elaiza-backends-integrations-alist' for a list of supported backends.")
 (defgroup elaiza
   nil
   "Use an LLM assistant."
   :group 'external
   :prefix 'elaiza)
+
+(setq elaiza-backends-integrations-alist 'nil)
+(elaiza-backends--add-integration (make-elaiza-claude))
+(elaiza-backends--add-integration (make-elaiza-llamafile))
+
+(defcustom elaiza-available-backends elaiza-backends-integrations-alist
+  "Available ELIZA backends.
+See `elaiza-backends-integrations-alist' for a list of supported backends."
+  :group 'elaiza
+  :type '('string . 'elaiza-backend))
 
 (defvar elaiza-system-prompt
   "Your name is ELAIZA based on the early AI program ELIZA that is now part of Emacs' doctor.
@@ -42,8 +49,6 @@ Do not state this information."
 
 
 ;; Functions
-(elaiza-backends--add-integration (make-elaiza-claude))
-(elaiza-backends--add-integration (make-elaiza-llamafile))
 
 ;;;###autoload
 (defun elaiza (prompt backend-name)

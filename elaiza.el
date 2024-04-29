@@ -83,10 +83,11 @@ Send PROMPT to LLM (BACKEND-NAME)."
         (elaiza--send (elaiza--split-text-by-role) elaiza--backend))
     (message "Are you in an *elaiza* buffer?")))
 
-(defun elaiza-kill-all-buffers ()
-  "Kill all *elaiza* buffers."
-  (interactive)
-  (kill-matching-buffers "\*elaiza: "))
+(defun elaiza-kill-all-buffers (&optional no-ask)
+  "Kill all *elaiza* buffers.
+Asks before kiling each buffer, unless NO-ASK is non-nil."
+  (interactive "P")
+  (kill-matching-buffers "\*elaiza: " 'nil no-ask))
 
 (defun elaiza--send (prompt backend)
   "Send PROMPT to BACKEND."

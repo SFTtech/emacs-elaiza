@@ -96,8 +96,6 @@ Send PROMPT to LLM (BACKEND-NAME)."
                     elaiza-system-prompt
                     ;; on-success
                     (lambda (_)
-                      (when (boundp 'org-element-use-cache)
-                        (setq org-element-use-cache 't))
                       (when elaiza-debug
                         (let ((response (buffer-substring-no-properties (point-min) (point-max))))
                           (with-current-buffer (get-buffer-create "*elaiza-log*")
@@ -116,7 +114,7 @@ Send PROMPT to LLM (BACKEND-NAME)."
                     backend)
     ;; Partial insertions cause org-element parsing errors.
     (when (boundp 'org-element-use-cache)
-      (setq org-element-use-cache 'nil))))
+      (setq-local org-element-use-cache 'nil))))
 
 (defun elaiza--mark-user-input (beg end _)
   "Add user role text property to text between BEG and END.

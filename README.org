@@ -1,11 +1,15 @@
 #+title: ELAIZA
-#+LAST_MODIFIED: [2024-04-29 Mon 18:26]
+#+LAST_MODIFIED: [2024-04-30 Tue 16:08]
 #+HTML: <img src="./assets/logo.webp" width="256px" align="right" alt="A cyberpunk-themed scene with a sleeker, less muscular hacker bunny wearing dark glasses, a stylish futuristic hoodie, and a visible black tank top beneath. The bunny, now with a slimmer, more toned build, exhibits a concentrated look as it types on an old-fashioned computer terminal. A half-eaten orange carrot is next to the keyboard. The scene is vibrantly lit with neon lights, enhancing the cyberpunk ambiance. A speech bubble above the bunny reads 'What's up Doc?' in a bold, cyber font, and the screen displays 'ELAIZA' in green monospaced font."/>
 
 
 An updated Emacs doctor.
 
-This package provides a llm-agnostic backend with a chat interface. To honor its [[https://en.wikipedia.org/wiki/ELIZA][ancestor]], you can also talk to a new AI-enhanced Emacs doctor via =M-x elaiza-doctor=.
+This package provides a llm-agnostic backend with multiple applications. For example, to honor its [[https://en.wikipedia.org/wiki/ELIZA][ancestor]], you can talk to a new AI-enhanced Emacs doctor via =M-x elaiza-doctor=.
+
+For general chatting you can use =M-x elaiza=. This let's you select an available LLM (see supported backends) and start a chat from the minibuffer.
+
+Similar to OpenAI's GPTs you can create your own assistants. For example, =M-x elaiza-editor= is a multilingual editor, giving you suggestions for your current buffer.
 
 * Installation
 
@@ -31,6 +35,7 @@ machine api.anthropic.com port https login elaiza password <yor-api-key>
 Currently, two applications are available:
 - =M-x elaiza= for prompting directly from the minibuffer
 - =M-x elaiza-doctor= an AI-enhanced Emacs doctor
+- =M-x elaiza-editor= a multilingual Editor
 
 * Supported Backends
 

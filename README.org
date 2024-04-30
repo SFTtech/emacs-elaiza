@@ -1,5 +1,5 @@
 #+title: ELAIZA
-#+LAST_MODIFIED: [2024-04-30 Tue 16:08]
+#+LAST_MODIFIED: [2024-04-30 Tue 16:13]
 #+HTML: <img src="./assets/logo.webp" width="256px" align="right" alt="A cyberpunk-themed scene with a sleeker, less muscular hacker bunny wearing dark glasses, a stylish futuristic hoodie, and a visible black tank top beneath. The bunny, now with a slimmer, more toned build, exhibits a concentrated look as it types on an old-fashioned computer terminal. A half-eaten orange carrot is next to the keyboard. The scene is vibrantly lit with neon lights, enhancing the cyberpunk ambiance. A speech bubble above the bunny reads 'What's up Doc?' in a bold, cyber font, and the screen displays 'ELAIZA' in green monospaced font."/>
 
 
@@ -42,7 +42,7 @@ Currently, two applications are available:
 | Model           | Provider  | Sourcecode          |
 |-----------------+-----------+---------------------|
 | GPT 4           | OpenAI    | =elaiza-openai.el=    |
-| GPT 4.5 Turbo   | OpenAI    | =elaiza-openai.el=    |
+| GPT 4 Turbo     | OpenAI    | =elaiza-openai.el=    |
 | GPT 3.5 Turbo   | OpenAI    | =elaiza-openai.el=    |
 | Claude 3 Opus   | Anthropic | =elaiza-claude.el=    |
 | Claude 3 Sonnet | Anthropic | =elaiza-claude.el=    |

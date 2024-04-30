@@ -23,9 +23,9 @@
   "For a list of available models, see https://platform.openai.com/docs/models."
   key model max_tokens)
 
-(cl-defstruct (elaiza-gpt-4-turbo (:include elaiza-openai (name "GPT-4.5 Turbo")
+(cl-defstruct (elaiza-gpt-4-turbo (:include elaiza-openai (name "GPT-4 Turbo")
                                             (key nil)
-                                            (model "gpt-4.5-turbo")
+                                            (model "gpt-4-turbo")
                                             (max_tokens 'nil))) ; 128000
   "The latest GPT-4 Turbo model. GPT-4 Turbo is more powerful than GPT-4 and offered at a lower price.")
 

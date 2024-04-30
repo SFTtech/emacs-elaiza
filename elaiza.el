@@ -22,6 +22,7 @@
 (require 'elaiza-openai)
 (require 'elaiza-claude)
 (require 'elaiza-llamafile)
+(require 'elaiza-ollama)
 (require 'elaiza-backends)
 
 ;; Variables
@@ -37,6 +38,7 @@
 (elaiza-backends--add-integration (make-elaiza-gpt-4-turbo))
 (elaiza-backends--add-integration (make-elaiza-gpt-4))
 (elaiza-backends--add-integration (make-elaiza-gpt-3.5-turbo))
+(elaiza-backends--add-integration (make-elaiza-ollama))
 
 (defcustom elaiza-available-backends elaiza-backends-integrations-alist
   "Available ELIZA backends.

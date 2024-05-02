@@ -33,12 +33,14 @@
   :prefix 'elaiza)
 
 (setq elaiza-backends-integrations-alist 'nil)
-(elaiza-backends--add-integration (make-elaiza-claude))
 (elaiza-backends--add-integration (make-elaiza-llamafile))
 (elaiza-backends--add-integration (make-elaiza-gpt-4-turbo))
 (elaiza-backends--add-integration (make-elaiza-gpt-4))
 (elaiza-backends--add-integration (make-elaiza-gpt-3.5-turbo))
 (elaiza-backends--add-integration (make-elaiza-ollama))
+(elaiza-backends--add-integration (make-elaiza-claude-opus))
+(elaiza-backends--add-integration (make-elaiza-claude-sonnet))
+(elaiza-backends--add-integration (make-elaiza-claude-haiku))
 
 (defcustom elaiza-available-backends elaiza-backends-integrations-alist
   "Available ELIZA backends.

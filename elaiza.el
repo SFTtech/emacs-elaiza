@@ -25,12 +25,12 @@
 (require 'elaiza-ollama)
 (require 'elaiza-backends)
 
-;; Variables
-(defgroup elaiza
-  nil
+(defgroup elaiza nil
   "Use an LLM assistant."
+  :prefix "elaiza-"
   :group 'external
-  :prefix 'elaiza)
+  :group 'applications)
+
 (defcustom elaiza-system-prompt
   "Your name is ELAIZA. ELAIZA is based on the early AI program ELIZA that is part of Emacs' doctor."
   "Default system prompt for ELAIZA. Prefix for other system prompts.
@@ -38,25 +38,28 @@
 For a guide to system prompts see https://matt-rickard.com/a-list-of-leaked-system-prompts."
   :type 'string)
 
-(setq elaiza-backends-integrations-alist 'nil)
-(elaiza-backends--add-integration (make-elaiza-llamafile))
-(elaiza-backends--add-integration (make-elaiza-gpt-4-turbo))
-(elaiza-backends--add-integration (make-elaiza-gpt-4))
-(elaiza-backends--add-integration (make-elaiza-gpt-3.5-turbo))
-(elaiza-backends--add-integration (make-elaiza-ollama))
-(elaiza-backends--add-integration (make-elaiza-claude-opus))
-(elaiza-backends--add-integration (make-elaiza-claude-sonnet))
-(elaiza-backends--add-integration (make-elaiza-claude-haiku))
+(defun elaiza-load-all-integrations ()
+  "Load all elaiza integrations.
+
+Ollama and llamafile need to be configured.
+They are dependent on locally available models."
+  ;; (elaiza-backends--add-integration (make-elaiza-llamafile))
+  ;; (elaiza-backends--add-integration (make-elaiza-ollama :name "Llama3 70B" :model "llama3:70b"))
+  (elaiza-backends--add-integration (make-elaiza-gpt-4-turbo))
+  (elaiza-backends--add-integration (make-elaiza-gpt-4))
+  (elaiza-backends--add-integration (make-elaiza-gpt-3.5-turbo))
+  (elaiza-backends--add-integration (make-elaiza-claude-opus))
+  (elaiza-backends--add-integration (make-elaiza-claude-sonnet))
+  (elaiza-backends--add-integration (make-elaiza-claude-haiku)))
+
+
+(elaiza-load-all-integrations)
 
 (defcustom elaiza-available-backends elaiza-backends-integrations-alist
   "Available ELIZA backends.
 See `elaiza-backends-integrations-alist' for a list of supported backends."
   :group 'elaiza
   :type '('string . 'elaiza-backend))
-
-
-
-;; Functions
 
 (defun elaiza-query-prompt ()
   "Query for PROMPT in the mini buffer."

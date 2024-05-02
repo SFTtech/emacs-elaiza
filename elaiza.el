@@ -60,22 +60,37 @@ DO NOT USE MARKDOWN."
 ;; Functions
 
 ;;;###autoload
-(defun elaiza (prompt backend-name)
+(defun elaiza (&optional prompt backend-name system-prompt buffer-name)
   "Chat with ELAIZA.
 
-Send PROMPT to LLM (BACKEND-NAME)."
-
-  (interactive (list (read-from-minibuffer "Prompt: ")
-                     (completing-read "LLM: " elaiza-available-backends 'nil 't 'nil 'nil 'nil)))
-  (switch-to-buffer-other-window
-   (get-buffer-create (generate-new-buffer-name
+Send PROMPT to llm (BACKEND-NAME) with a custom SYSTEM-PROMPT.
+Show chat in BUFFER-NAME."
+  (interactive)
+  (unless prompt (setq prompt (elaiza-query-prompt)))
+  (unless backend-name (setq backend-name (elaiza-query-backend)))
+  (unless buffer-name (setq buffer-name (generate-new-buffer-name
                        (concat "*elaiza: " (substring prompt 0 (min (length prompt) 20)) "*"))))
+  (switch-to-buffer-other-window (get-buffer-create buffer-name))
   (elaiza-mode)
   ;; Store the utilized LLM so we do not need to requery on `elaiza-continue-chat'.
   (setq-local elaiza--backend (cdr (assoc backend-name elaiza-available-backends)))
+  (when system-prompt
+    (setq-local elaiza-system-prompt system-prompt))
   (add-text-properties 0 (length prompt) '(role "user") prompt)
-  (insert "#+TITLE: " prompt "\n\n")
+  (insert ":PROPERTIES:
+:PROMPT: " prompt
+"\n:END:\n")
   (elaiza--send (list `((role . "user") (content . ,prompt))) elaiza--backend))
+
+(defun elaiza-query-prompt ()
+  "Query for PROMPT in the mini buffer."
+  (interactive)
+  (read-from-minibuffer "Prompt: "))
+
+(defun elaiza-query-backend ()
+  "Query for backend name in the mini buffer."
+  (interactive)
+  (completing-read "LLM: " elaiza-available-backends 'nil 't 'nil 'nil 'nil))
 
 (defun elaiza-continue-chat ()
   "Continue conversation inside *elaiza* buffer."

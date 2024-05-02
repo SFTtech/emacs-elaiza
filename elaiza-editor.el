@@ -16,8 +16,8 @@
 ;;; Code:
 (require 'elaiza)
 
-(defcustom elaiza-editor-system-prompt "
-You are a multilingual expert editor.
+(defcustom elaiza-editor-system-prompt  (concat elaiza-system-prompt
+"You are a multilingual expert editor.
 Below you can find a draft.
 Do not repeat the drafted text, provide only suggestions.
 
@@ -28,24 +28,16 @@ Pay attention that your suggestions fit the context of the given draft.
 In case it is source code or uses a special syntax, edit only the prose text.
 If the draft has no errors state just that.
 
-The draft you have to edit is:\n"
+The draft you have to edit is:\n")
   "System prompt for the ELAIZA editor."
   :group 'elaiza
   :type 'string)
 
 ;;;###autoload
-(defun elaiza-editor (backend-name)
-  "Send current buffer to BACKEND-NAME and provide editing suggestions."
-  (interactive (list (completing-read "LLM: " elaiza-available-backends 'nil 't 'nil 'nil 'nil)))
+(defun elaiza-editor ()
+  "Provide editing suggestions for current buffer."
   (let ((current-buffer-name (buffer-name))
         (current-buffer-content (buffer-substring-no-properties (point-min) (point-max))))
-  (switch-to-buffer-other-window (get-buffer-create (generate-new-buffer-name (concat
-                                                                  "*elaiza editor* "
-                                                                  current-buffer-name))))
-  (elaiza-mode)
-  (setq-local elaiza-system-prompt elaiza-editor-system-prompt)
-  (setq-local elaiza--backend (cdr (assoc backend-name elaiza-available-backends)))
-  (elaiza--send (list `((role . "user") (content . ,current-buffer-content))) elaiza--backend)))
-
+    (elaiza current-buffer-content 'nil elaiza-editor-system-prompt current-buffer-name)))
 (provide 'elaiza-editor)
 ;;; elaiza-editor.el ends here

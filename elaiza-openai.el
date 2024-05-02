@@ -78,7 +78,7 @@ See https://github.com/ggerganov/llama.cpp/blob/master/examples/server/README.md
 (cl-defmethod elaiza-request--parse-streamed-response (message-delta (_ elaiza-openai))
   "Parse a partial stream response (MESSAGE-DELTA) from ELAIZA-BACKEND Chatgpt."
   (when (and message-delta
-             (string-match "\"delta\":{\"content\":\\(.*?\\)}" message-delta))
+             (string-match ":{\"content\":\\(.*?\\)},\"logprobs\"" message-delta))
     (decode-coding-string (json-read-from-string (match-string 1 message-delta)) 'utf-8)))
 
 (provide 'elaiza-openai)

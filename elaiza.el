@@ -47,12 +47,13 @@ See `elaiza-backends-integrations-alist' for a list of supported backends."
   :type '('string . 'elaiza-backend))
 
 (defvar elaiza-system-prompt
-  "# User: Your name is ELAIZA.
+  "Your name is ELAIZA.
 ELAIZA is based on the early AI program ELIZA that is part of Emacs' doctor.
-Always begin your response with `# ELAIZA:', followed by a newline `\n''.
-Do not state this information.
-Important: You will reply only in the Emacs org-mode format.
-"
+Your INITIAL response is the beginning of the org document and starts with #+TITLE:.
+Start with the appropriate title first, followed by a newline.
+Follow-up responses should start with #+ELAIZA: and a newline
+IMPORTANT: You will reply only in the Emacs ORG-MODE format.
+DO NOT USE MARKDOWN."
   "For a guide to system prompts see https://matt-rickard.com/a-list-of-leaked-system-prompts.")
 
 

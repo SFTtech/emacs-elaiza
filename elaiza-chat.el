@@ -16,6 +16,7 @@
 ;;  Chatting with ELAIZA
 ;;
 ;;; Code:
+(require 'org)
 (require 'elaiza)
 
 (defvar-keymap elaiza-mode-map

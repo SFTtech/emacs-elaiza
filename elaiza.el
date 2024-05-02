@@ -161,6 +161,10 @@ Used as part of `after-change-functions' hook. LENGTH-BEFORE not used."
 (define-derived-mode elaiza-mode org-mode "ELAIZA"
   "Major mode for interacting with an LLM via ELAIZA."
   :interactive 'nil
+  (setq elaiza-mode-map (make-sparse-keymap))
+  (set-keymap-parent elaiza-mode-map org-mode-map)
+  (define-key elaiza-mode-map (kbd "C-c RET") #'elaiza-continue-chat)
+  (define-key elaiza-mode-map (kbd "C-c <return>") #'elaiza-continue-chat)
   (turn-on-auto-fill)
   (add-hook 'after-change-functions #'elaiza--mark-user-input))
 

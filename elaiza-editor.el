@@ -14,7 +14,7 @@
 ;;  Similar to OpenAI's GPTs this uses Elaiza as an editor.
 ;;
 ;;; Code:
-(require 'elaiza)
+(require 'elaiza-chat)
 
 (defcustom elaiza-editor-system-prompt  (concat elaiza-system-prompt
 "You are a multilingual expert editor.
@@ -38,6 +38,6 @@ The draft you have to edit is:\n")
   "Provide editing suggestions for current buffer."
   (let ((current-buffer-name (buffer-name))
         (current-buffer-content (buffer-substring-no-properties (point-min) (point-max))))
-    (elaiza current-buffer-content 'nil elaiza-editor-system-prompt current-buffer-name)))
+    (elaiza-chat current-buffer-content 'nil elaiza-editor-system-prompt current-buffer-name)))
 (provide 'elaiza-editor)
 ;;; elaiza-editor.el ends here

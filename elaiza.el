@@ -18,25 +18,26 @@
 ;;  `ELAIZA' is a LLM agnostic assistant based on the pioneering ELIZA program used inside Emacs' `doctor'.
 ;;
 ;;; Code:
-(require 'cl-lib)
-(require 'elaiza-openai)
-(require 'elaiza-claude)
-(require 'elaiza-llamafile)
-(require 'elaiza-ollama)
-(require 'elaiza-backends)
 
 (defgroup elaiza nil
   "Use an LLM assistant."
-  :prefix "elaiza-"
-  :group 'external
-  :group 'applications)
+  :group 'external)
 
 (defcustom elaiza-system-prompt
   "Your name is ELAIZA. ELAIZA is based on the early AI program ELIZA that is part of Emacs' doctor."
   "Default system prompt for ELAIZA. Prefix for other system prompts.
 
 For a guide to system prompts see https://matt-rickard.com/a-list-of-leaked-system-prompts."
+  :group 'elaiza
   :type 'string)
+
+
+(require 'cl-lib)
+(require 'elaiza-openai)
+(require 'elaiza-claude)
+(require 'elaiza-llamafile)
+(require 'elaiza-ollama)
+(require 'elaiza-backends)
 
 (defun elaiza-load-all-integrations ()
   "Load all elaiza integrations.
@@ -55,11 +56,18 @@ They are dependent on locally available models."
 
 (elaiza-load-all-integrations)
 
-(defcustom elaiza-available-backends elaiza-backends-integrations-alist
-  "Available ELIZA backends.
-See `elaiza-backends-integrations-alist' for a list of supported backends."
-  :group 'elaiza
-  :type '('string . 'elaiza-backend))
+(defcustom elaiza-default-model "GPT-3.5 Turbo"
+  "Default model."
+:group 'elaiza
+:type '(choice
+        (string :tag "Specify model name")))
+
+;; FIXME defcustom model selection
+(defvar elaiza-available-backends elaiza-backends-integrations-alist
+  "Available ELAIZA backends.
+See `elaiza-backends-integrations-alist' for a list of supported backends.")
+  ;; :group 'elaiza
+  ;; :type '(string . elaiza-backend))
 
 (defun elaiza-query-prompt ()
   "Query for PROMPT in the mini buffer."

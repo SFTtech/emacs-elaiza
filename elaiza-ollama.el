@@ -26,8 +26,8 @@
   (port "11434") ; default port
   (model "llama2")) ; default model
 
-(cl-defmethod elaiza-request--encode (messages system-prompt (elaiza-backend elaiza-ollama))
-  "Send MESSAGES to backend ELAIZA-BACKEND: Ollama.
+(cl-defmethod elaiza-request--encode (messages system-prompt (backend elaiza-ollama))
+  "Send MESSAGES to BACKEND: Ollama.
 
 See https://github.com/ollama/ollama/blob/main/docs/api.md
 Add SYSTEM-PROMPT if non-nil."
@@ -39,8 +39,8 @@ Add SYSTEM-PROMPT if non-nil."
                                                        messages)
                                       messages))
                     (cons 'stream  't)
-                    (cons 'model (elaiza-ollama-model elaiza-backend))))
-        (url (concat "http://localhost:" (elaiza-ollama-port elaiza-backend) "/api/chat")))
+                    (cons 'model (elaiza-ollama-model backend))))
+        (url (concat "http://localhost:" (elaiza-ollama-port backend) "/api/chat")))
     (list url headers (encode-coding-string (json-encode body) 'utf-8))))
 
 (cl-defmethod elaiza-request--parse-streamed-response (message-delta (_ elaiza-ollama))

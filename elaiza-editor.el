@@ -36,8 +36,9 @@ The draft you have to edit is:\n")
 ;;;###autoload
 (defun elaiza-editor ()
   "Provide editing suggestions for current buffer."
-  (let ((current-buffer-name (buffer-name))
+  (interactive)
+  (let ((current-buffer-name (concat "*elaiza-editor* " (substring (buffer-name) 0 (min (length (buffer-name)) 20))))
         (current-buffer-content (buffer-substring-no-properties (point-min) (point-max))))
-    (elaiza-chat current-buffer-content 'nil elaiza-editor-system-prompt current-buffer-name)))
+    (elaiza-chat current-buffer-content nil elaiza-editor-system-prompt current-buffer-name) t))
 (provide 'elaiza-editor)
 ;;; elaiza-editor.el ends here

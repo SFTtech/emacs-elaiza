@@ -29,10 +29,12 @@
   :type 'string)
 
 ;;;###autoload
-(defun elaiza-jupyter ()
-  "Chat with ELAIZA with special org-mode Python instructions."
-  (interactive)
-  (elaiza-chat 'nil 'nil elaiza-jupyter-system-prompt 'nil))
+(defun elaiza-jupyter (prompt)
+  "Chat with ELAIZA via PROMPT with special `org-mode' Python instructions.
+Select LLM when prefixed with `C-u'."
+  ; TODO should we merge this with `elaiza-chat'?
+  (interactive "sPrompt: ")
+  (elaiza-chat prompt nil elaiza-jupyter-system-prompt nil))
 
 (provide 'elaiza-jupyter)
 ;;; elaiza-jupyter.el ends here

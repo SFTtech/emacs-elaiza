@@ -5,8 +5,8 @@
 ;; Author: Alessandro Wollek <contact@wollek.ai>
 ;; Maintainer: Alessandro Wollek <contact@wollek.ai>
 ;; Created: April 05, 2024
-;; Modified: April 26, 2024
-;; Version: 0.0.1
+;; Modified: May 12, 2024
+;; Version: 0.0.2
 ;; Package-Requires: ((emacs "29.1"))
 ;; Homepage: https://github.com/SFTtech/emacs-elaiza
 ;; SPDX-License-Identifier: GPL-3.0-only
@@ -39,13 +39,33 @@ For a guide to system prompts see https://matt-rickard.com/a-list-of-leaked-syst
 (require 'elaiza-ollama)
 (require 'elaiza-backends)
 
+(defcustom elaiza-available-backends elaiza-backends-integrations-alist
+  "Available ELAIZA backends.
+See `elaiza-backends-integrations-alist' for a list of supported backends."
+  :group 'elazia
+  :type 'list)
+
+(defcustom elaiza-default-model elaiza-llamafile-default-model
+  "Default model."
+  :group 'elaiza
+  :type '(sexp :validate 'elaiza-backend-p))
+
 (defun elaiza-load-all-integrations ()
   "Load all elaiza integrations.
 
 Ollama and llamafile need to be configured.
-They are dependent on locally available models."
-  ;; (elaiza-backends--add-integration (make-elaiza-llamafile))
-  ;; (elaiza-backends--add-integration (make-elaiza-ollama :name "Llama3 70B" :model "llama3:70b"))
+They are dependent on locally available models.
+
+For example you can add an ollama integration (Llama3 70B) as follows:
+`(elaiza-backends--add-integration (make-elaiza-ollama :name \"Llama3 70B\" :model \"llama3:70b\"))'.
+
+Similarly for a Llamafile:
+`(elaiza-backends--add-integration (make-elaiza-llamafile
+ :name \"Llamafile: TinyLlama 1.1B\"
+ :filename \"~/llamafiles/tinyllama-1.1B.llamafile\"
+ :url \"https://huggingface.co/jartine/TinyLlama-1.1B-Chat-v1.0-GGUF/resolve/main/TinyLlama-1.1B-Chat-v1.0.F16.llamafile?download=true\")
+)'"
+  (elaiza-backends--add-integration elaiza-default-model)
   (elaiza-backends--add-integration (make-elaiza-gpt-4-turbo))
   (elaiza-backends--add-integration (make-elaiza-gpt-4))
   (elaiza-backends--add-integration (make-elaiza-gpt-3.5-turbo))
@@ -53,31 +73,30 @@ They are dependent on locally available models."
   (elaiza-backends--add-integration (make-elaiza-claude-sonnet))
   (elaiza-backends--add-integration (make-elaiza-claude-haiku)))
 
-
-(elaiza-load-all-integrations)
-
-(defcustom elaiza-default-model "GPT-3.5 Turbo"
-  "Default model."
-:group 'elaiza
-:type '(choice
-        (string :tag "Specify model name")))
-
-;; FIXME defcustom model selection
-(defvar elaiza-available-backends elaiza-backends-integrations-alist
-  "Available ELAIZA backends.
-See `elaiza-backends-integrations-alist' for a list of supported backends.")
-  ;; :group 'elaiza
-  ;; :type '(string . elaiza-backend))
+(defun elaiza-add-available-backend (backend)
+  "Add available BACKEND."
+  (unless (assoc (elaiza-backend-name backend) elaiza-available-backends)
+    (push (cons (elaiza-backend-name backend) backend)
+          elaiza-available-backends)))
 
 (defun elaiza-query-prompt ()
   "Query for PROMPT in the mini buffer."
   (interactive)
   (read-from-minibuffer "Prompt: "))
 
-(defun elaiza-query-backend ()
-  "Query for backend name in the mini buffer."
-  (interactive)
-  (completing-read "LLM: " elaiza-available-backends 'nil 't 'nil 'nil 'nil))
+(defun elaiza-query-backend (&optional backend)
+  "Query for BACKEND when called with `C-u'."
+  (if current-prefix-arg
+      (progn
+        (elaiza-load-all-integrations)
+        (setq backend
+              (cdr (assoc (completing-read
+                           "LLM: "
+                           elaiza-available-backends
+                           nil t nil nil nil)
+                          elaiza-available-backends))))
+    (unless backend (setq backend elaiza-default-model)))
+  backend)
 
 (provide 'elaiza)
 ;;; elaiza.el ends here

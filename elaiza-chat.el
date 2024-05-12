@@ -26,8 +26,8 @@
 
 (defcustom elaiza-chat-system-prompt
   (concat elaiza-system-prompt "Your INITIAL response is the beginning of the org document and starts with #+TITLE:.
-Start with the appropriate title first, followed by a newline.
-Follow-up responses should start with #+ELAIZA: and a newline
+Start with the appropriate title first.
+Follow-up responses should start with #+ELAIZA:
 IMPORTANT: You will reply only in the Emacs ORG-MODE format.
 DO NOT USE MARKDOWN.")
   "For a guide to system prompts see https://matt-rickard.com/a-list-of-leaked-system-prompts."
@@ -35,30 +35,33 @@ DO NOT USE MARKDOWN.")
   :type 'string)
 
 ;;;###autoload
-(defun elaiza-chat (&optional prompt backend-name system-prompt buffer-name)
+(defun elaiza-chat (&optional prompt backend system-prompt buffer-name discard-prompt)
   "Chat with ELAIZA.
 
-Send PROMPT to llm (BACKEND-NAME) with a custom SYSTEM-PROMPT.
+Send PROMPT to llm with a custom SYSTEM-PROMPT.
+Select LLM when prefixed with `C-u'.
+Save prompt as property unles DISCARD-PROMPT is non-nil.
 Show chat in BUFFER-NAME."
-  (interactive)
-  (unless prompt (setq prompt (elaiza-query-prompt)))
-  (unless backend-name (setq backend-name (elaiza-query-backend)))
+  (interactive "sPrompt: \nP")
   (unless buffer-name (setq buffer-name (generate-new-buffer-name
                        (concat "*elaiza: " (substring prompt 0 (min (length prompt) 20)) "*"))))
-  (unless system-prompt (setq system-prompt elaiza-chat-system-prompt))
   (switch-to-buffer-other-window (get-buffer-create buffer-name))
   (elaiza-mode)
+  (unless system-prompt (setq system-prompt (default-value 'elaiza-chat-system-prompt)))
   ;; Store the utilized LLM so we do not need to requery on `elaiza-continue-chat'.
-  (setq-local elaiza--backend (cdr (assoc backend-name elaiza-available-backends)))
+  (setq-local elaiza--backend (elaiza-query-backend backend))
   (setq-local elaiza-system-prompt system-prompt)
   (add-text-properties 0 (length prompt) '(role "user") prompt)
-  (insert ":PROPERTIES:
+  (unless discard-prompt
+    (insert ":PROPERTIES:
 :PROMPT: " prompt
-"\n:END:\n")
-  (elaiza-chat--send (list `((role . "user") (content . ,prompt))) system-prompt elaiza--backend)
+"\n:END:\n"))
   ;; Partial insertions cause org-element parsing errors.
   (when (boundp 'org-element-use-cache)
-    (setq-local org-element-use-cache 'nil)))
+    (setq-local org-element-use-cache 'nil))
+  (elaiza-debug 'elaiza-chat "%s -> %s" prompt (elaiza-backend-name elaiza--backend))
+  (elaiza-chat--send (list `((role . "user") (content . ,prompt))) system-prompt elaiza--backend))
+
 
 (defun elaiza-chat-continue ()
   "Continue conversation inside *elaiza* buffer."
@@ -69,30 +72,42 @@ Show chat in BUFFER-NAME."
         (elaiza-chat--send (elaiza-chat--split-text-by-role) elaiza-system-prompt elaiza--backend))
     (message "Are you in an *elaiza* buffer?")))
 
+(defun elaiza-chat--insert-response (response buffer point)
+  "Insert RESPONSE into BUFFER at POINT.
+Return POINT after insertion"
+  (elaiza-debug 'elaiza-chat--insert-response response)
+  (with-current-buffer
+      buffer
+    (when response
+      (save-excursion
+        (goto-char point)
+        (insert response)
+        (point)))))
+
 (defun elaiza-chat--send (prompt system-prompt backend)
-  "Send PROMPT to BACKEND."
+  "Send PROMPT and SYSTEM-PROMPT to BACKEND."
+  (elaiza-debug 'elaiza--send "%S" prompt)
   (let ((elaiza-buffer (current-buffer))
         (start (point)))
-    (elaiza-request prompt
-                    system-prompt
-                    ;; on-success
-                    (lambda (_)
-                      (when elaiza-debug
-                        (let ((response (buffer-substring-no-properties (point-min) (point-max))))
-                          (with-current-buffer (get-buffer-create "*elaiza-log*")
-                            (goto-char (point-max))
-                            (insert "Response length %d" (length response)
-                                    "\n\n"
-                                    response)))))
-                    ;; on-streamed-response
-                    (lambda (response-delta)
-                      (with-current-buffer elaiza-buffer
-                        (when response-delta
-                          (save-excursion
-                            (goto-char start)
-                            (insert response-delta)
-                            (setq start (point))))))
-                    backend)))
+    (elaiza-request
+     prompt
+     system-prompt
+     ;; on-success
+     (lambda (status)
+       (elaiza-debug 'elaiza-chat--send "Status %S" status)
+       (with-current-buffer elaiza-buffer
+         (when (boundp 'elaiza--request-buffer)
+           (setq elaiza--request-buffer nil)))
+       (when (plist-get status :error)
+         (message (buffer-substring-no-properties (point-min) (point-max)))
+         (error "Elaiza request error")))
+     ;; on-streamed-response
+     (lambda (response-delta)
+       (let ((request-buffer (current-buffer)))
+         (with-current-buffer elaiza-buffer
+           (setq-local elaiza--request-buffer request-buffer)))
+       (setq start (elaiza-chat--insert-response response-delta elaiza-buffer start)))
+     backend)))
 
 (defun elaiza-chat-kill-all-buffers (&optional no-ask)
   "Kill all *elaiza* chat buffers.
@@ -128,7 +143,7 @@ Used as part of `after-change-functions' hook. LENGTH-BEFORE not used."
   :interactive 'nil
   (turn-on-auto-fill)
   ;; Keep track of assistant and user text.
-  (add-hook 'after-change-functions #'elaiza-chat--mark-user-input))
+  (add-hook 'after-change-functions #'elaiza-chat--mark-user-input nil t))
 
 (provide 'elaiza-chat)
 ;;; elaiza-chat.el ends here

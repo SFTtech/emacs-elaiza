@@ -23,7 +23,13 @@ Uses BACKEND-NAME as LLM."
   (interactive)
   (switch-to-buffer "*doctor*")
   (elaiza-doctor-mode)
-  (setq-local elaiza--backend (cdr (assoc (elaiza-query-backend) elaiza-available-backends))))
+  (setq-local elaiza--backend (elaiza-query-backend nil))
+  (when (= (buffer-size (current-buffer)) 0)
+  (let ((prompt "I am the psychotherapist.  Please, describe your problems.  Each time you are
+finished talking, type RET twice.\n\n"))
+    (insert prompt)
+    ;; Inserting triggers `elaiza-chat--mark-user-input'.
+    (put-text-property (point-min) (point-max) 'role "assistant"))))
 
 (defun elaiza-doctor-ret-or-read ()
   "Insert a newline if preceding character is not a newline.
@@ -42,10 +48,6 @@ Like Doctor mode but with AI."
   (setq elaiza-doctor-mode-map (make-sparse-keymap))
   (define-key elaiza-doctor-mode-map (kbd "RET") #'elaiza-doctor-ret-or-read)
   (setq-local elaiza-system-prompt "You are the psychotherapist.")
-  (let ((prompt "I am the psychotherapist.  Please, describe your problems.  Each time you are
-finished talking, type RET twice.\n\n"))
-    (add-text-properties 0 (length prompt) '(role "assistant") prompt)
-    (insert prompt))
   (add-hook 'after-change-functions #'elaiza-chat--mark-user-input nil t))
 
 (provide 'elaiza-doctor)

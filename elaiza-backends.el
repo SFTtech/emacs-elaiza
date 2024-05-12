@@ -19,10 +19,10 @@
   "Struct for backend-specific dispatching."
   name)
 
-(defvar elaiza-backends-integrations-alist 'nil
+(defvar elaiza-backends-integrations-alist nil
   "LLM backends that are incorporated into ELAIZA.")
 
-(defvar elaiza--backend 'nil
+(defvar elaiza--backend nil
   "Default elaiza backend for current buffer.")
 
 (defun elaiza-backends--add-integration (backend)

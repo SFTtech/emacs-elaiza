@@ -46,7 +46,7 @@ Like Doctor mode but with AI."
 finished talking, type RET twice.\n\n"))
     (add-text-properties 0 (length prompt) '(role "assistant") prompt)
     (insert prompt))
-  (add-hook 'after-change-functions #'elaiza-chat--mark-user-input))
+  (add-hook 'after-change-functions #'elaiza-chat--mark-user-input nil t))
 
 (provide 'elaiza-doctor)
 ;;; elaiza-doctor.el ends here

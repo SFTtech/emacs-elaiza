@@ -56,24 +56,23 @@
     (if auth-info (auth-info-password auth-info)
       (error "Could not retrieve API key\nSave machine api.anthropic.com port https login elaiza password <your-api-key> in ~/.authinfo.gpg"))))
 
-(cl-defmethod elaiza-request--encode (messages system-prompt (elaiza-backend elaiza-anthropic))
-  "Send MESSAGES to backend ELAIZA-BACKEND: Anthropic's Claude.
-
+(cl-defmethod elaiza-request--encode (messages system-prompt (backend elaiza-anthropic))
+  "Send MESSAGES to BACKEND: Anthropic's Claude.
 Add SYSTEM-PROMPT if non-nil.
 See https://docs.anthropic.com/claude/reference/getting-started-with-the-api."
   (let ((headers `(("x-api-key" . ,(elaiza-claude-get-api-key))
                    ("anthropic-version" . "2023-06-01")
                    ("content-type" . "application/json")
                    ("accept-charset" . "utf-8")))
-        (body (list (cons 'model (elaiza-anthropic-model elaiza-backend))
-                    (cons 'max_tokens (elaiza-anthropic-max_tokens elaiza-backend))
+        (body (list (cons 'model (elaiza-anthropic-model backend))
+                    (cons 'max_tokens (elaiza-anthropic-max_tokens backend))
                     (cons 'stream 't)
                     (cons 'messages messages)))
         (url "https://api.anthropic.com/v1/messages"))
     (when elaiza-debug
       (message "Sending prompt to %s with %s max tokens"
-               (elaiza-anthropic-model elaiza-backend)
-               (elaiza-anthropic-max_tokens elaiza-backend)))
+               (elaiza-anthropic-model backend)
+               (elaiza-anthropic-max_tokens backend)))
     (when system-prompt
       (push (cons 'system system-prompt) body))
     (list url headers (encode-coding-string (json-encode body) 'utf-8))))

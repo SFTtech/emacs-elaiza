@@ -55,7 +55,7 @@
     (if auth-info (auth-info-password auth-info)
       (error "Could not retrieve API key\nSave machine api.openai.com port https login elaiza password <your-api-key> in ~/.authinfo.gpg"))))
 
-(cl-defmethod elaiza-request--encode (messages system-prompt (elaiza-backend elaiza-openai))
+(cl-defmethod elaiza-request--encode (messages system-prompt (backend elaiza-openai))
   "Send MESSAGES to ELAIZA-BACKEND OpenAI.
 
 See https://platform.openai.com/docs/api-reference/chat
@@ -70,8 +70,8 @@ See https://github.com/ggerganov/llama.cpp/blob/master/examples/server/README.md
                                                        messages)
                                       messages))
                     (cons 'stream  't)
-                    (cons 'model (elaiza-openai-model elaiza-backend))
-                    (cons 'max_tokens (elaiza-openai-max_tokens elaiza-backend))))
+                    (cons 'model (elaiza-openai-model backend))
+                    (cons 'max_tokens (elaiza-openai-max_tokens backend))))
         (url "https://api.openai.com/v1/chat/completions"))
     (list url headers (encode-coding-string (json-encode body) 'utf-8))))
 

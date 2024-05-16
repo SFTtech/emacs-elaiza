@@ -76,6 +76,7 @@ Similarly for a Llamafile:
  :url \"https://huggingface.co/jartine/TinyLlama-1.1B-Chat-v1.0-GGUF/resolve/main/TinyLlama-1.1B-Chat-v1.0.F16.llamafile?download=true\")
 )'"
   (elaiza-backends--add-integration elaiza-default-model)
+  (elaiza-backends--add-integration (make-elaiza-gpt-4o))
   (elaiza-backends--add-integration (make-elaiza-gpt-4-turbo))
   (elaiza-backends--add-integration (make-elaiza-gpt-4))
   (elaiza-backends--add-integration (make-elaiza-gpt-3.5-turbo))

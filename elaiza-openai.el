@@ -35,12 +35,18 @@
                                       (max_tokens 'nil))) ; 8192
   "The latest GPT-4 model.")
 
+(cl-defstruct (elaiza-gpt-4o (:include elaiza-openai (name "GPT-4o")
+                                      (key nil)
+                                      (model "gpt-4o")
+                                      (max_tokens 'nil))) ; 12800
+  "The fastest and most affordable flagship model")
+
 (cl-defstruct (elaiza-gpt-3.5-turbo (:include elaiza-openai
                                               (name "GPT-3.5 Turbo")
                                               (key nil)
                                               (model "gpt-3.5-turbo")
                                               (max_tokens 'nil))) ; 16385
-  "The latest GPT-3.5 Turbo model. GPT-3.5 Turbo models are capable and cost-effective.")
+  "A fast, inexpensive model for simple tasks.")
 
 (defun elaiza-openai-get-api-key ()
   "Get OpenAI API key from auth-source, create if needed."

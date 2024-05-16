@@ -85,6 +85,7 @@ Use =Claude 3 Opus= as your default model by adding the following to your =confi
 
 | Model                   | Provider  | Sourcecode          |
 |-------------------------+-----------+---------------------|
+| GPT 4o                  | OpenAI    | =elaiza-openai.el=    |
 | GPT 4                   | OpenAI    | =elaiza-openai.el=    |
 | GPT 4 Turbo             | OpenAI    | =elaiza-openai.el=    |
 | GPT 3.5 Turbo           | OpenAI    | =elaiza-openai.el=    |

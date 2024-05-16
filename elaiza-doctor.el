@@ -10,26 +10,25 @@
 ;;
 ;;; Commentary:
 ;;
-;;  An updated Emacs Doctor
+;;  An updated Emacs Doctor.
+;;  Talk to an LLM instead of the original ELIZA doctor.
 ;;
 ;;; Code:
 (require 'elaiza-chat)
 
-;;;###autoload
-(defun elaiza-doctor ()
-  "Switch to *doctor* buffer and start giving *enhanced* psychotherapy.
+(defvar elaiza-doctor-buffer "*doctor*"
+  "Name of the Elaiza doctor buffer.")
+(defvar elaiza-doctor-system-prompt "You are the Emacs Psychotherapist ELAIZA."
+  "System prompt for the Emacs Psychotherapist.")
 
-Uses BACKEND-NAME as LLM."
-  (interactive)
-  (switch-to-buffer "*doctor*")
-  (elaiza-doctor-mode)
-  (setq-local elaiza--backend (elaiza-query-backend nil))
-  (when (= (buffer-size (current-buffer)) 0)
-  (let ((prompt "I am the psychotherapist.  Please, describe your problems.  Each time you are
-finished talking, type RET twice.\n\n"))
-    (insert prompt)
-    ;; Inserting triggers `elaiza-chat--mark-user-input'.
-    (put-text-property (point-min) (point-max) 'role "assistant"))))
+;;;###autoload
+(defun elaiza-doctor (&optional _prefix)
+  "Switch to *doctor* buffer and start giving *enhanced* psychotherapy.
+Uses `elaiza-default-model' backend.
+PREFIX function to choose an alternative backend for the session."
+  (interactive "P")
+  (switch-to-buffer elaiza-doctor-buffer)
+  (elaiza-doctor-mode))
 
 (defun elaiza-doctor-ret-or-read ()
   "Insert a newline if preceding character is not a newline.
@@ -44,10 +43,16 @@ Otherwise call the Doctor to parse preceding sentence."
 (define-derived-mode elaiza-doctor-mode text-mode "ELAIZA Doctor"
   "Major mode for running the updated Doctor (ELAIZA) program.
 Like Doctor mode but with AI."
-  :interactive nil
+  :interactive "P"
   (setq elaiza-doctor-mode-map (make-sparse-keymap))
   (define-key elaiza-doctor-mode-map (kbd "RET") #'elaiza-doctor-ret-or-read)
-  (setq-local elaiza-system-prompt "You are the psychotherapist.")
+  (setq-local elaiza-system-prompt elaiza-doctor-system-prompt)
+  (setq-local elaiza--backend (elaiza-query-backend))
+  (when (= (buffer-size (current-buffer)) 0)
+    (let ((prompt "I am the psychotherapist. Please, describe your problems. Each time you are
+finished talking, type RET twice.\n\n"))
+      (insert prompt)
+      (add-text-properties (point-min) (point-max) '(role "assistant"))))
   (add-hook 'after-change-functions #'elaiza-chat--mark-user-input nil t))
 
 (provide 'elaiza-doctor)

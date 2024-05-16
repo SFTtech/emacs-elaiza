@@ -1,15 +1,23 @@
 #+title: ELAIZA
-#+LAST_MODIFIED: [2024-04-30 Tue 18:03]
+#+LAST_MODIFIED: [2024-05-16 Thu 20:11]
 #+HTML: <img src="./assets/logo.webp" width="256px" align="right" alt="A cyberpunk-themed scene with a sleeker, less muscular hacker bunny wearing dark glasses, a stylish futuristic hoodie, and a visible black tank top beneath. The bunny, now with a slimmer, more toned build, exhibits a concentrated look as it types on an old-fashioned computer terminal. A half-eaten orange carrot is next to the keyboard. The scene is vibrantly lit with neon lights, enhancing the cyberpunk ambiance. A speech bubble above the bunny reads 'What's up Doc?' in a bold, cyber font, and the screen displays 'ELAIZA' in green monospaced font."/>
 
 
 An updated Emacs doctor.
 
-This package provides an llm-agnostic backend with multiple applications. For example, to honor its [[https://en.wikipedia.org/wiki/ELIZA][ancestor]], you can talk to a new AI-enhanced Emacs doctor via =M-x elaiza-doctor=.
+This package provides a Large Language Model independent (LLM) backend with
+multiple applications. For example, to honor its [[https://en.wikipedia.org/wiki/ELIZA][ancestor]], you can talk to a new
+Artificial Intelligence-enhanced (AI) Emacs doctor via =M-x elaiza-doctor=.
 
-For general chatting, you can use =M-x elaiza=. This lets you select an available LLM (see supported backends) and start a chat from the minibuffer.
+For general chatting, you can use =M-x elaiza-chat= directly from the minibuffer.
+By default, you can chat with a local TinyLlama model (see getting started).
+You can switch backends by pre-fixing your commands with =C-u= and selecting an
+available LLM (see supported backends).
 
-Similar to OpenAI's GPTs you can create your own assistants. For example, =M-x elaiza-editor= is a multilingual editor, giving you suggestions for your current buffer.
+Similar to OpenAI's GPTs, you can create your own assistants. For example, =M-x
+elaiza-editor= is a multilingual editor, giving you suggestions for your current
+buffer. With =elaiza-jupyter= you can get org-mode responses that are optimized for
+Python code, similar to Jupyter Notebooks.
 
 * Installation
 
@@ -19,24 +27,59 @@ Add the following to your =packages.el=
 (package! elaiza :recipe (:host github :repo "SFTtech/emacs-elaiza" :branch "main"))
 #+end_src
 
+* Usage
+#+HTML: <img src="./assets/elaiza-editor.png" width="800px" alt="Elaiza editor giving suggestions for this README."/>
+** Getting Started
+If you want to try ELAIZA and have no prior LLM experience just use =M-x elaiza-chat=.
+This will download a small model (TinyLlama 1.1B, 2.05 GB) and start the =Llamafile= automatically.
+Afterwards you can start chatting with the model.
+Note, due to its size, it will have worse capabilities compared to larger models, such as GPT-4.
+You can stop the server with =M-x elaiza-llamafile-stop=.
+
+** Applications
+Currently, the following applications are available:
+- =M-x elaiza-chat= for direct minibuffer prompts
+- =M-x elaiza-doctor= for an AI-enhanced Emacs doctor experience
+- =M-x elaiza-editor= as a multilingual editor for suggestions in your current buffer
+- =M-x elaiza-jupyter= like =elaiza-chat= but with special Python instructions.
+
+** Specifying a default model
+You can specify a default backend using customize.
+For example, in Doom Emacs, insert the following into your =config.el= to use =GPT-4 Turbo= as your default model.
+#+begin_src emacs-lisp
+(use-package! elaiza
+  :config
+  (setq elaiza-default-model (cdr (assoc "GPT-4 Turbo" elaiza-available-backends))))
+#+end_src
+Alternatively prefix the elaiza commands (=C-u=) or call =M-x elaiza-change-default-model=
+
 ** API Keys
-To securely store and retrieve API keys, use auth-source, as documented in the [[https://www.gnu.org/software/emacs/manual/html_mono/auth.html][Emacs Auth Manual]]. Add the following to your =auth-sources= file, e.g., =.authinfo.gpg=, to store them:
+Some backends, such as ChatGPT and Claude 3, require an API key.
+To securely store and retrieve API keys, use auth-source, as documented in the [[https://www.gnu.org/software/emacs/manual/html_mono/auth.html][Emacs Auth Manual]]. Add the following to your =auth-sources= file, for example, =.authinfo.gpg=, to store them:
 
 *** Example: OpenAI
+Create a key at https://platform.openai.com/api-keys.
+Insert into your =~/.authinfo.gpg=:
 #+begin_example
 machine api.openai.com port https login elaiza password <your-api-key>
 #+end_example
+Use =GPT-4 Turbo= as your default model by adding the following to your =config.el=:
+#+begin_src emacs-lisp
+(use-package! elaiza
+  :config (setq elaiza-default-model (make-elaiza-gpt-4-turbo))
+#+end_src
 *** Example: Claude
+Create a key at https://console.anthropic.com/settings/keys.
+Insert into your =~/.authinfo.gpg=:
 #+begin_example
 machine api.anthropic.com port https login elaiza password <your-api-key>
 #+end_example
+Use =Claude 3 Opus= as your default model by adding the following to your =config.el=:
+#+begin_src emacs-lisp
+(use-package! elaiza
+  :config (setq elaiza-default-model (make-elaiza-claude-opus))
+#+end_src
 
-* Usage
-#+HTML: <img src="./assets/elaiza-editor.png" width="800px" alt="Elaiza editor giving suggestions for this README."/>
-Currently, the following applications are available:
-- =M-x elaiza= for direct minibuffer prompts
-- =M-x elaiza-doctor= for an AI-enhanced Emacs doctor experience
-- =M-x elaiza-editor= as a multilingual editor for suggestions in your current buffer
 
 * Supported Backends
 
@@ -48,9 +91,10 @@ Currently, the following applications are available:
 | Claude 3 Opus           | Anthropic | =elaiza-claude.el=    |
 | Claude 3 Sonnet         | Anthropic | =elaiza-claude.el=    |
 | Claude 3 Haiku          | Anthropic | =elaiza-claude.el=    |
-| [[https://github.com/mozilla-Ocho/llamafile?tab=readme-ov-file#other-example-llamafiles][Available llamafiles]]    | [[https://github.com/mozilla-Ocho/llamafile][Llamafile]] | =elaiza-llamafile.el= |
+| [[https://github.com/mozilla-Ocho/llamafile?tab=readme-ov-file#other-example-llamafiles][Available Llamafiles]]    | [[https://github.com/mozilla-Ocho/llamafile][Llamafile]] | =elaiza-llamafile.el= |
 | [[https://ollama.com/library][Available Ollama Models]] | [[https://ollama.com/][Ollama]]    | =elaiza-ollama.el=    |
 
 * Alternatives
 - [[https://github.com/karthink/gptel][karthink/gptel]] GPTel: A simple LLM client for Emacs
 - [[https://github.com/ahyatt/llm][ahyatt/llm]]: llm package for emacs
+- [[https://github.com/s-kostyaev/ellama][s-kostyaev/ellama]]: Ellama is a tool for interacting with large language models from Emacs.

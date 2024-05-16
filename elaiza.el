@@ -49,6 +49,17 @@ See `elaiza-backends-integrations-alist' for a list of supported backends."
   :group 'elaiza
   :type '(sexp :validate 'elaiza-backend-p))
 
+;;;###autoload
+(defun elaiza-change-default-model ()
+  "Change the `elaiza-default-model'.
+For a permanent change customize `elaiza-default-model'.
+
+For example, for GPT-4 Turbo:
+`(use-package elaiza
+  :config (setq elaiza-default-model (make-elaiza-gpt-4-turbo))'"
+  (interactive)
+  (setq elaiza-default-model (elaiza-query-backend nil t)))
+
 (defun elaiza-load-all-integrations ()
   "Load all elaiza integrations.
 
@@ -83,11 +94,12 @@ Similarly for a Llamafile:
   (interactive)
   (read-from-minibuffer "Prompt: "))
 
-(defun elaiza-query-backend (&optional backend _prefix)
-  "Query for BACKEND when called with PREFIX `C-u'.
+(defun elaiza-query-backend (&optional backend select _prefix)
+  "Query for BACKEND when called with PREFIX `C-u'
+or SELECT is non-nil.
 
 If no backend was chosen use `elaiza-default-model'."
-  (if current-prefix-arg
+  (if (or current-prefix-arg select)
       (progn
         (unless elaiza-available-backends
           (elaiza-load-all-integrations)

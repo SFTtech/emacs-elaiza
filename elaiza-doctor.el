@@ -30,10 +30,10 @@ PREFIX function to choose an alternative backend for the session."
   (switch-to-buffer elaiza-doctor-buffer)
   (elaiza-doctor-mode))
 
-(defun elaiza-doctor-ret-or-read ()
+(defun elaiza-doctor-ret-or-read (&optional _prefix)
   "Insert a newline if preceding character is not a newline.
 Otherwise call the Doctor to parse preceding sentence."
-  (interactive)
+  (interactive "P")
   (if (= (preceding-char) ?\n)
       (progn (elaiza-chat-continue)
              (goto-char (point-max))
@@ -45,7 +45,7 @@ Otherwise call the Doctor to parse preceding sentence."
 Like Doctor mode but with AI."
   :interactive "P"
   (setq elaiza-doctor-mode-map (make-sparse-keymap))
-  (define-key elaiza-doctor-mode-map (kbd "RET") #'elaiza-doctor-ret-or-read)
+  (define-key elaiza-doctor-mode-map (kbd "<RET>") 'elaiza-doctor-ret-or-read)
   (setq-local elaiza-system-prompt elaiza-doctor-system-prompt)
   (setq-local elaiza--backend (elaiza-query-backend))
   (when (= (buffer-size (current-buffer)) 0)

@@ -60,11 +60,12 @@ Show chat in BUFFER-NAME."
   (elaiza-chat--send (list `((role . "user") (content . ,prompt))) system-prompt elaiza--backend))
 
 
-(defun elaiza-chat-continue ()
+(defun elaiza-chat-continue (&optional _prefix)
   "Continue conversation inside *elaiza* buffer."
-  (interactive)
+  (interactive "P")
   (if (boundp 'elaiza--backend)
       (progn
+        (setq-local elaiza--backend (elaiza-query-backend elaiza--backend))
         (insert "\n")
         (elaiza-chat--send (elaiza-chat--split-text-by-role) elaiza-system-prompt elaiza--backend))
     (message "Are you in an *elaiza* buffer?")))

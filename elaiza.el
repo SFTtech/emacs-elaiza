@@ -31,7 +31,6 @@ For a guide to system prompts see https://matt-rickard.com/a-list-of-leaked-syst
   :group 'elaiza
   :type 'string)
 
-
 (require 'cl-lib)
 (require 'elaiza-openai)
 (require 'elaiza-claude)
@@ -39,7 +38,7 @@ For a guide to system prompts see https://matt-rickard.com/a-list-of-leaked-syst
 (require 'elaiza-ollama)
 (require 'elaiza-backends)
 
-(defcustom elaiza-available-backends elaiza-backends-integrations-alist
+(defcustom elaiza-available-backends nil
   "Available ELAIZA backends.
 See `elaiza-backends-integrations-alist' for a list of supported backends."
   :group 'elazia
@@ -84,11 +83,15 @@ Similarly for a Llamafile:
   (interactive)
   (read-from-minibuffer "Prompt: "))
 
-(defun elaiza-query-backend (&optional backend)
-  "Query for BACKEND when called with `C-u'."
+(defun elaiza-query-backend (&optional backend _prefix)
+  "Query for BACKEND when called with PREFIX `C-u'.
+
+If no backend was chosen use `elaiza-default-model'."
   (if current-prefix-arg
       (progn
-        (elaiza-load-all-integrations)
+        (unless elaiza-available-backends
+          (elaiza-load-all-integrations)
+          (setq elaiza-available-backends elaiza-backends-integrations-alist))
         (setq backend
               (cdr (assoc (completing-read
                            "LLM: "

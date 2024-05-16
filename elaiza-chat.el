@@ -2,9 +2,6 @@
 ;;
 ;; Copyright (C) 2024 Alessandro Wollek
 ;;
-;; Author: Alessandro Wollek <a@wollek.dev>
-; Copyright (C) 2024 Alessandro Wollek
-;;
 ;; Author: Alessandro Wollek <contact@wollek.ai>
 ;; Homepage: https://github.com/SFTtech/emacs-elaiza
 ;; SPDX-License-Identifier: GPL-3.0-only
@@ -132,10 +129,10 @@ Asks before killing each buffer, unless NO-ASK is non-nil."
         (setq start (point)))
       (nreverse result))))
 
-(defun elaiza-chat--mark-user-input (beg end _)
+(defun elaiza-chat--mark-user-input (beg end _lenght-before)
   "Add user role text property to text between BEG and END.
 
-Used as part of `after-change-functions' hook. LENGTH-BEFORE not used."
+Used as part of `after-change-functions' hook."
   (add-text-properties beg end '(role "user")))
 
 (define-derived-mode elaiza-mode org-mode "ELAIZA"

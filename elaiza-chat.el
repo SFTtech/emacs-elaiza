@@ -24,7 +24,7 @@
 (defcustom elaiza-chat-system-prompt
   (concat elaiza-system-prompt "Your INITIAL response is the beginning of the org document and starts with #+TITLE:.
 Start with the appropriate title first.
-Follow-up responses should start with #+ELAIZA:
+Follow-up responses should start with #+ELAIZA: followed by a new-line.
 IMPORTANT: You will reply only in the Emacs ORG-MODE format.
 DO NOT USE MARKDOWN.")
   "For a guide to system prompts see https://matt-rickard.com/a-list-of-leaked-system-prompts."

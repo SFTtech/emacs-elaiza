@@ -26,7 +26,7 @@
 (add-hook 'elaiza-request-pre-request-functions
           (lambda (backend callback)
             (when (elaiza-llamafile-p backend)
-                       (elaiza-llamafile-start backend t callback 0))))
+                       (elaiza-llamafile-start nil backend t callback 0))))
 
 (defcustom elaiza-llamafile-max-attempts 5
   "Number of attempts to start the Llamafile server."
@@ -34,7 +34,7 @@
   :type 'number)
 
 ;;;###autoload
-(defun elaiza-llamafile-start (&optional llamafile-backend download callback n)
+(defun elaiza-llamafile-start (&optional prefix llamafile-backend download callback n)
   "Start Llamafile server.
 
 DOWNLOAD LLAMAFILE-BACKEND if it non-nil and does not exist, call CALLBACK with filename.
@@ -48,6 +48,8 @@ otherwise
 - check if LLAMAFILE-BACKEND exists
 - download LLAMAFILE-BACKEND if not and DOWNLOAD is non-nil
 - start LLAMAFILE-BACKEND server and call CALLBACK
+
+When PREFIX is non-nil prompt the user to select a Llamafile.
 Callbacks are necessary as all url-requests are async.
 Keep track of the Nth startup attempt."
   (interactive "P")
@@ -62,7 +64,9 @@ Keep track of the Nth startup attempt."
      (elaiza-debug 'llamafile "Llamafile server running: %S" running)
      (if (not running)
          (elaiza-llamafile--start
-          (elaiza-llamafile--query-or-default llamafile-backend)
+          (if prefix
+              (elaiza-llamafile-select-model)
+            (elaiza-llamafile--backend-or-default llamafile-backend))
           download
           callback
           n)
@@ -142,16 +146,21 @@ Call CALLBACK on success."
   (make-directory elaiza-llamafile-directory t)
   (elaiza-request-url-copy-file url filename nil callback))
 
-(defun elaiza-llamafile--query-or-default (&optional llamafile-backend)
-  "Use default LLAMAFILE-BACKEND or query if called with `C-u'."
-  (interactive "P")
-  (if current-prefix-arg
-      (let ((filename (read-file-name "Llamafile: ")))
-        (make-elaiza-llamafile
+(defun elaiza-llamafile-select-model ()
+  "Read Llamafile and return backend.
+Adds backend to `elaiza-available-backends'."
+  (interactive)
+  (let* ((filename (read-file-name "Llamafile: "))
+         (llamafile (make-elaiza-llamafile
          :name (file-name-base filename)
          :filename filename
-         :url 'nil))
-    (if llamafile-backend llamafile-backend elaiza-llamafile-default-model)))
+         :url 'nil)))
+    (elaiza-add-available-backend llamafile)
+    llamafile))
+
+(defun elaiza-llamafile--backend-or-default (&optional llamafile-backend)
+  "Use default LLAMAFILE-BACKEND or query if nil."
+    (if llamafile-backend llamafile-backend elaiza-llamafile-default-model))
 
 (defun elaiza-llamafile-running-p ()
   "Return non-nil if the Llamafile server is running.
@@ -180,7 +189,7 @@ Use `elaiza-llamafile-default-model' if LLAMAFILE-BACKEND is nil.
 Call CALLBACK if LLAMAFILE-BACKEND status as argument."
   (if (elaiza-llamafile-running-p)
       (funcall callback t)
-    (elaiza-llamafile--health (elaiza-llamafile--query-or-default llamafile-backend)
+    (elaiza-llamafile--health (elaiza-llamafile--backend-or-default llamafile-backend)
                               callback))
   nil)
 
@@ -202,7 +211,8 @@ and increase startup counter N."
            (elaiza-llamafile-url llamafile-backend)
            file
            (lambda ()
-             (elaiza-llamafile-start llamafile-backend nil callback 0)))
+             (elaiza-add-available-backend llamafile-backend)
+             (elaiza-llamafile-start nil llamafile-backend nil callback 0)))
         (signal 'file-error (format "%s does not exist" file))))
     ;; We have a Llamafile. Let's start the server.
     (unless (file-executable-p file)
@@ -222,7 +232,7 @@ and increase startup counter N."
      ;; Avoid a block call and wait `elaiza-llamafile-startup' seconds.
      (lambda (_)
        (elaiza-debug 'llamafile "Slept; hoping Llamafile server is now online.")
-       (elaiza-llamafile-start llamafile-backend nil callback (1+ n)))
+       (elaiza-llamafile-start nil llamafile-backend nil callback (1+ n)))
      elaiza-llamafile-startup)))
 
 (defun elaiza-llamafile-stop ()

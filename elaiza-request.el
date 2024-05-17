@@ -27,10 +27,14 @@ elaiza-backend and callback to `elaiza--request' as argument."
   :group 'elaiza
   :type 'hook)
 
+(defvar elaiza-request--buffer nil
+  "Buffer-local variable to keep track of the current connection.
+Used for interrupting connections.")
+
 (cl-defgeneric elaiza-request--encode (messages system-prompt backend)
   "Encode MESSAGES and SYSTEM-PROMPT for BACKEND request.")
 
-(defun elaiza--request (prompt system-prompt on-success on-streamed-response backend)
+(defun elaiza--request (prompt system-prompt on-success on-streamed-response backend &optional elaiza-buffer)
   "Use `elaiza-request'.
 
 Send PROMPT and SYSTEM-PROMPT to BACKEND.
@@ -46,10 +50,13 @@ For resolving the streamed response ON-STREAMED-RESPONSE is used."
         (add-hook 'after-change-functions
                   (elaiza-request--after-change-function on-streamed-response backend)
                   nil
-                  t)
-        request-buffer))))
+                  t))
+      (when elaiza-buffer
+        (with-current-buffer elaiza-buffer
+          (setq-local elaiza-request--buffer request-buffer)))
+        request-buffer)))
 
-(defun elaiza-request (prompt system-prompt on-success on-streamed-response backend)
+(defun elaiza-request (prompt system-prompt on-success on-streamed-response backend &optional elaiza-buffer)
   "Send PROMPT and SYSTEM-PROMPT to BACKEND.
 
 Run (async) `elaiza-request--after-change-function' before request.
@@ -60,7 +67,7 @@ For resolving the streamed response ON-STREAMED-RESPONSE is used."
    'elaiza-request-pre-request-functions
    backend
    (lambda ()
-     (funcall #'elaiza--request prompt system-prompt on-success on-streamed-response backend))))
+     (funcall #'elaiza--request prompt system-prompt on-success on-streamed-response backend elaiza-buffer))))
 
 (defun elaiza-request--after-change-function (on-streamed-response backend)
   "Function is intended to be used as `after-change-functions' hook.

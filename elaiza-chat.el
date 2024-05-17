@@ -19,7 +19,8 @@
 (defvar-keymap elaiza-mode-map
   :parent org-mode-map
   "C-c RET" #'elaiza-chat-continue
-  "C-c <RET>" #'elaiza-chat-continue)
+  "C-c <RET>" #'elaiza-chat-continue
+  "C-c C-k" #'elaiza-chat-interrupt)
 
 (defcustom elaiza-chat-system-prompt
   (concat elaiza-system-prompt "Your INITIAL response is the beginning of the org document and starts with #+TITLE:.
@@ -56,9 +57,10 @@ Show chat in BUFFER-NAME."
   ;; Partial insertions cause org-element parsing errors.
   (when (boundp 'org-element-use-cache)
     (setq-local org-element-use-cache 'nil))
-  (elaiza-debug 'elaiza-chat "%s -> %s" prompt (elaiza-backend-name elaiza--backend))
-  (elaiza-chat--send (list `((role . "user") (content . ,prompt))) system-prompt elaiza--backend))
-
+  (elaiza-debug 'elaiza-chat "%s -> %s" prompt
+                (elaiza-backend-name elaiza--backend))
+  (elaiza-chat--send (list `((role . "user") (content . ,prompt)))
+                     system-prompt elaiza--backend (current-buffer)))
 
 (defun elaiza-chat-continue (&optional _prefix)
   "Continue conversation inside *elaiza* buffer."
@@ -67,7 +69,10 @@ Show chat in BUFFER-NAME."
       (progn
         (setq-local elaiza--backend (elaiza-query-backend elaiza--backend))
         (insert "\n")
-        (elaiza-chat--send (elaiza-chat--split-text-by-role) elaiza-system-prompt elaiza--backend))
+        (elaiza-chat--send (elaiza-chat--split-text-by-role)
+                           elaiza-system-prompt
+                           elaiza--backend
+                           (current-buffer)))
     (message "Are you in an *elaiza* buffer?")))
 
 (defun elaiza-chat--insert-response (response buffer point)
@@ -82,7 +87,7 @@ Return POINT after insertion"
         (insert response)
         (point)))))
 
-(defun elaiza-chat--send (prompt system-prompt backend)
+(defun elaiza-chat--send (prompt system-prompt backend &optional elaiza-buffer)
   "Send PROMPT and SYSTEM-PROMPT to BACKEND."
   (elaiza-debug 'elaiza--send "%S" prompt)
   (let ((elaiza-buffer (current-buffer))
@@ -94,18 +99,22 @@ Return POINT after insertion"
      (lambda (status)
        (elaiza-debug 'elaiza-chat--send "Status %S" status)
        (with-current-buffer elaiza-buffer
-         (when (boundp 'elaiza--request-buffer)
-           (setq elaiza--request-buffer nil)))
+           (setq-local elaiza-request--buffer nil))
        (when (plist-get status :error)
          (message (buffer-substring-no-properties (point-min) (point-max)))
          (error "Elaiza request error")))
      ;; on-streamed-response
      (lambda (response-delta)
-       (let ((request-buffer (current-buffer)))
-         (with-current-buffer elaiza-buffer
-           (setq-local elaiza--request-buffer request-buffer)))
        (setq start (elaiza-chat--insert-response response-delta elaiza-buffer start)))
-     backend)))
+     backend
+     elaiza-buffer)))
+
+(defun elaiza-chat-interrupt ()
+  "Interrrupt chat response by killing `elaiza-request--buffer'."
+  (interactive)
+  (when elaiza-request--buffer
+    (kill-buffer elaiza-request--buffer)
+    (setq-local elaiza-request--buffer nil)))
 
 (defun elaiza-chat-kill-all-buffers (&optional no-ask)
   "Kill all *elaiza* chat buffers.

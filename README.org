@@ -1,5 +1,5 @@
 #+title: ELAIZA
-#+LAST_MODIFIED: [2024-05-16 Thu 20:11]
+#+LAST_MODIFIED: [2024-05-17 Fri 16:06]
 #+HTML: <img src="./assets/logo.webp" width="256px" align="right" alt="A cyberpunk-themed scene with a sleeker, less muscular hacker bunny wearing dark glasses, a stylish futuristic hoodie, and a visible black tank top beneath. The bunny, now with a slimmer, more toned build, exhibits a concentrated look as it types on an old-fashioned computer terminal. A half-eaten orange carrot is next to the keyboard. The scene is vibrantly lit with neon lights, enhancing the cyberpunk ambiance. A speech bubble above the bunny reads 'What's up Doc?' in a bold, cyber font, and the screen displays 'ELAIZA' in green monospaced font."/>
 
 
@@ -11,7 +11,7 @@ Artificial Intelligence-enhanced (AI) Emacs doctor via =M-x elaiza-doctor=.
 
 For general chatting, you can use =M-x elaiza-chat= directly from the minibuffer.
 By default, you can chat with a local TinyLlama model (see getting started).
-You can switch backends by pre-fixing your commands with =C-u= and selecting an
+You can switch backends by prefixing your commands with =C-u= and selecting an
 available LLM (see supported backends).
 
 Similar to OpenAI's GPTs, you can create your own assistants. For example, =M-x
@@ -30,11 +30,14 @@ Add the following to your =packages.el=
 * Usage
 #+HTML: <img src="./assets/elaiza-editor.png" width="800px" alt="Elaiza editor giving suggestions for this README."/>
 ** Getting Started
-If you want to try ELAIZA and have no prior LLM experience just use =M-x elaiza-chat=.
-This will download a small model (TinyLlama 1.1B, 2.05 GB) and start the =Llamafile= automatically.
+If you have no prior experience with LLMs and want to try ELAIZA, simply use  =M-x elaiza-chat=.
+This will download a small model (TinyLlama 1.1B, 2.05 GB) to =~/llamafiles= and start the the server automatically.
 Afterwards you can start chatting with the model.
 Note, due to its size, it will have worse capabilities compared to larger models, such as GPT-4.
 You can stop the server with =M-x elaiza-llamafile-stop=.
+
+** Key Bindings
+In =elaiza-mode=, you can use =C-c <RET>= to continue the conversation (=elaiza-chat-continue=) and =C-c C-k= to interrupt the response (=elaiza-chat-interrupt=).
 
 ** Applications
 Currently, the following applications are available:

@@ -30,12 +30,13 @@ PREFIX function to choose an alternative backend for the session."
   (switch-to-buffer elaiza-doctor-buffer)
   (elaiza-doctor-mode))
 
-(defun elaiza-doctor-ret-or-read (&optional _prefix)
+(defun elaiza-doctor-ret-or-read (&optional prefix)
   "Insert a newline if preceding character is not a newline.
-Otherwise call the Doctor to parse preceding sentence."
+Otherwise call the Doctor to parse preceding sentence.
+Select backend when PREFIX is non-nil."
   (interactive "P")
   (if (= (preceding-char) ?\n)
-      (progn (elaiza-chat-continue)
+      (progn (elaiza-chat-continue prefix)
              (goto-char (point-max))
              (insert "\n\n"))
     (newline)))
@@ -47,7 +48,7 @@ Like Doctor mode but with AI."
   (setq elaiza-doctor-mode-map (make-sparse-keymap))
   (define-key elaiza-doctor-mode-map (kbd "<RET>") 'elaiza-doctor-ret-or-read)
   (setq-local elaiza-system-prompt elaiza-doctor-system-prompt)
-  (setq-local elaiza--backend (elaiza-query-backend))
+  (setq-local elaiza--backend (elaiza-query-backend current-prefix-arg))
   (when (= (buffer-size (current-buffer)) 0)
     (let ((prompt "I am the psychotherapist. Please, describe your problems. Each time you are
 finished talking, type RET twice.\n\n"))

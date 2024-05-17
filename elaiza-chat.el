@@ -33,7 +33,7 @@ DO NOT USE MARKDOWN.")
   :type 'string)
 
 ;;;###autoload
-(defun elaiza-chat (&optional prompt backend system-prompt buffer-name discard-prompt)
+(defun elaiza-chat (&optional prompt prefix backend system-prompt buffer-name discard-prompt)
   "Chat with ELAIZA.
 
 Send PROMPT to llm with a custom SYSTEM-PROMPT.
@@ -47,7 +47,7 @@ Show chat in BUFFER-NAME."
   (elaiza-mode)
   (unless system-prompt (setq system-prompt (default-value 'elaiza-chat-system-prompt)))
   ;; Store the utilized LLM so we do not need to requery on `elaiza-continue-chat'.
-  (setq-local elaiza--backend (elaiza-query-backend backend))
+  (setq-local elaiza--backend (elaiza-query-backend prefix backend))
   (setq-local elaiza-system-prompt system-prompt)
   (add-text-properties 0 (length prompt) '(role "user") prompt)
   (unless discard-prompt
@@ -62,12 +62,13 @@ Show chat in BUFFER-NAME."
   (elaiza-chat--send (list `((role . "user") (content . ,prompt)))
                      system-prompt elaiza--backend (current-buffer)))
 
-(defun elaiza-chat-continue (&optional _prefix)
-  "Continue conversation inside *elaiza* buffer."
+(defun elaiza-chat-continue (&optional prefix)
+  "Continue conversation inside *elaiza* buffer.
+Choose backend when PREFIX is non-nil."
   (interactive "P")
   (if (boundp 'elaiza--backend)
       (progn
-        (setq-local elaiza--backend (elaiza-query-backend elaiza--backend))
+        (setq-local elaiza--backend (elaiza-query-backend prefix elaiza--backend))
         (insert "\n")
         (elaiza-chat--send (elaiza-chat--split-text-by-role)
                            elaiza-system-prompt

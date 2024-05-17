@@ -52,7 +52,7 @@ For example, for GPT-4 Turbo:
 `(use-package elaiza
   :config (setq elaiza-default-model (make-elaiza-gpt-4-turbo))'"
   (interactive)
-  (setq elaiza-default-model (elaiza-query-backend nil t)))
+  (setq elaiza-default-model (elaiza-query-backend t nil)))
 
 (defun elaiza-load-all-integrations ()
   "Load all elaiza integrations.
@@ -84,12 +84,11 @@ Similarly for a Llamafile:
   (interactive)
   (read-from-minibuffer "Prompt: "))
 
-(defun elaiza-query-backend (&optional backend select _prefix)
-  "Query for BACKEND when called with PREFIX `C-u'
-or SELECT is non-nil.
+(defun elaiza-query-backend (&optional prefix backend)
+  "Query for BACKEND when called with PREFIX.
 
 If no backend was chosen use `elaiza-default-model'."
-  (if (or current-prefix-arg select)
+  (if prefix
       (progn
         (unless elaiza-available-backends
           (elaiza-load-all-integrations)

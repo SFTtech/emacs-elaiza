@@ -38,12 +38,6 @@ For a guide to system prompts see https://matt-rickard.com/a-list-of-leaked-syst
 (require 'elaiza-ollama)
 (require 'elaiza-backends)
 
-(defcustom elaiza-available-backends nil
-  "Available ELAIZA backends.
-See `elaiza-backends-integrations-alist' for a list of supported backends."
-  :group 'elazia
-  :type 'list)
-
 (defcustom elaiza-default-model elaiza-llamafile-default-model
   "Default model."
   :group 'elaiza
@@ -76,6 +70,7 @@ Similarly for a Llamafile:
  :url \"https://huggingface.co/jartine/TinyLlama-1.1B-Chat-v1.0-GGUF/resolve/main/TinyLlama-1.1B-Chat-v1.0.F16.llamafile?download=true\")
 )'"
   (elaiza-backends--add-integration elaiza-default-model)
+  (elaiza-backends--add-integration elaiza-llamafile-default-model)
   (elaiza-backends--add-integration (make-elaiza-gpt-4o))
   (elaiza-backends--add-integration (make-elaiza-gpt-4-turbo))
   (elaiza-backends--add-integration (make-elaiza-gpt-4))
@@ -83,12 +78,6 @@ Similarly for a Llamafile:
   (elaiza-backends--add-integration (make-elaiza-claude-opus))
   (elaiza-backends--add-integration (make-elaiza-claude-sonnet))
   (elaiza-backends--add-integration (make-elaiza-claude-haiku)))
-
-(defun elaiza-add-available-backend (backend)
-  "Add available BACKEND."
-  (unless (assoc (elaiza-backend-name backend) elaiza-available-backends)
-    (push (cons (elaiza-backend-name backend) backend)
-          elaiza-available-backends)))
 
 (defun elaiza-query-prompt ()
   "Query for PROMPT in the mini buffer."

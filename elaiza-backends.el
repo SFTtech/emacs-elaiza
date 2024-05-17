@@ -31,5 +31,17 @@
     (push (cons (elaiza-backend-name backend) backend)
           elaiza-backends-integrations-alist)))
 
+(defcustom elaiza-available-backends nil
+  "Available ELAIZA backends.
+See `elaiza-backends-integrations-alist' for a list of supported backends."
+  :group 'elazia
+  :type 'list)
+
+(defun elaiza-add-available-backend (backend)
+  "Add BACKEND to available `elaiza-available-backends'."
+  (unless (assoc (elaiza-backend-name backend) elaiza-available-backends)
+    (push (cons (elaiza-backend-name backend) backend)
+          elaiza-available-backends)))
+
 (provide 'elaiza-backends)
 ;;; elaiza-backends.el ends here

@@ -107,6 +107,22 @@ This was envoced by calling `elaiza-chat', calling `elaiza-request'.
   "TinyLlama-1.1B. Requires 2.05GB.
 See https://huggingface.co/jartine/TinyLlama-1.1B-Chat-v1.0-GGUF.")
 
+(cl-defstruct
+    (elaiza-llamafile-llava_1.5
+     (:include elaiza-llamafile
+               (name "Llamafile: LLaVa 1.5")
+               (url "https://huggingface.co/Mozilla/llava-v1.5-7b-llamafile/resolve/main/llava-v1.5-7b-q4.llamafile?download=true")))
+  "LLava 1.5. Requires 3.97 GB.
+See https://huggingface.co/Mozilla/llava-v1.5-7b-llamafile.")
+
+(cl-defstruct
+    (elaiza-llamafile-rocket-3B
+     (:include elaiza-llamafile
+               (name "Llamafile: Rocket-3B")
+               (url "https://huggingface.co/Mozilla/rocket-3B-llamafile/resolve/main/rocket-3b.Q5_K_M.llamafile?download=true")))
+  "Rocket-3B. Requires 1.89 GB.
+See https://huggingface.co/Mozilla/rocket-3B-llamafile.")
+
 (defcustom elaiza-llamafile-directory "~/llamafiles/"
   "Default directory to download Llamafiles."
   :group 'elaiza
@@ -119,9 +135,9 @@ See https://huggingface.co/jartine/TinyLlama-1.1B-Chat-v1.0-GGUF.")
 
 (defcustom elaiza-llamafile-default-model
   (progn
-    (declare-function make-elaiza-llamafile-tintyllama-1.1B "elaiza-llamafile")
-    (make-elaiza-llamafile-tinyllama-1.1B
-     :filename (concat elaiza-llamafile-directory "tinyllama-1.1B.llamafile")))
+    (declare-function make-elaiza-llamafile-rocket-3B "elaiza-llamafile")
+    (make-elaiza-llamafile-rocket-3B
+     :filename (concat elaiza-llamafile-directory "rocket-3B.llamafile")))
   "Default Llamafile model.
 Requires a URL, a FILENAME and a NAME."
   :group 'elaiza

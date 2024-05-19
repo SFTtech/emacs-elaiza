@@ -1,5 +1,5 @@
 #+title: ELAIZA
-#+LAST_MODIFIED: [2024-05-19 Sun 16:29]
+#+LAST_MODIFIED: [2024-05-19 Sun 16:43]
 #+HTML: <img src="./assets/logo.webp" width="256px" align="right" alt="A cyberpunk-themed scene with a sleeker, less muscular hacker bunny wearing dark glasses, a stylish futuristic hoodie, and a visible black tank top beneath. The bunny, now with a slimmer, more toned build, exhibits a concentrated look as it types on an old-fashioned computer terminal. A half-eaten orange carrot is next to the keyboard. The scene is vibrantly lit with neon lights, enhancing the cyberpunk ambiance. A speech bubble above the bunny reads 'What's up Doc?' in a bold, cyber font, and the screen displays 'ELAIZA' in green monospaced font."/>
 
 
@@ -49,12 +49,11 @@ Currently, the following applications are available:
 ** Specifying a default model
 You can specify a default backend using customize.
 Alternatively prefix the elaiza commands (=C-u=) or call =M-x elaiza-change-default-model=.
-*** GPT-4 Turbo
-For example, in Doom Emacs, insert the following into your =config.el= to use =GPT-4 Turbo= as your default model.
+*** GPT-4o
+For example, in Doom Emacs, insert the following into your =config.el= to use =GPT-4o= as your default model.
 #+begin_src emacs-lisp
 (use-package! elaiza
-  :config
-  (setq elaiza-default-model (cdr (assoc "GPT-4 Turbo" elaiza-available-backends))))
+  :config (setq elaiza-default-model (make-elaiza-gpt-4o))
 #+end_src
 *** Llamafile: LLaMA-3 Instruct 8B
 If you have downloaded a Llamafile already, for example, from https://github.com/mozilla-Ocho/llamafile, you can select it as default model by specifying its name and location.

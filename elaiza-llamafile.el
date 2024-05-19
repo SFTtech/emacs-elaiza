@@ -23,11 +23,6 @@
 (require 'elaiza-backends)
 (require 'elaiza-request)
 
-(add-hook 'elaiza-request-pre-request-functions
-          (lambda (backend callback)
-            (when (elaiza-llamafile-p backend)
-                       (elaiza-llamafile-start nil backend t callback 0))))
-
 (defcustom elaiza-llamafile-max-attempts 5
   "Number of attempts to start the Llamafile server."
   :group 'elaiza
@@ -51,30 +46,53 @@ otherwise
 
 When PREFIX is non-nil prompt the user to select a Llamafile.
 Callbacks are necessary as all url-requests are async.
-Keep track of the Nth startup attempt."
+Keep track of the Nth startup attempt.
+
+When calling `elaiza-chat' from a clean install, without any configuration,
+`elaiza-llamafile-start' is called as `elaiza-backend-pre-request-function'.
+This ensures that the default llamafile is downloaded and the server started.
+The async nature makes this process convoluted:
+1. The CALLBACK of `elaiza-llamafile-start' is an `elaiza--request'.
+This was envoced by calling `elaiza-chat', calling `elaiza-request'.
+2. Ping the llamafile server. If it is reachable call CALLBACK.
+3. If not check if the llamafile exists (`elaiza-llamafile--start').
+4. (If not download the llamafile first (`elaiza-llamafile-download')
+    and call `elaiza-llamafile--start' again.)
+5. Start the llamafile server
+   and ping it N times with a delay of `elaiza-llamafile-startup' seconds.
+   GOTO 2."
   (interactive "P")
-  (elaiza-debug 'llamafile-start "%S" llamafile-backend)
+  (setq llamafile-backend
+        (if prefix
+            (elaiza-llamafile-select-model)
+          (elaiza-llamafile--backend-or-default llamafile-backend)))
+  (elaiza-debug 'llamafile-start "Using backend %s (%s)" (elaiza-llamafile-name llamafile-backend)
+                (elaiza-llamafile-filename llamafile-backend))
   (unless n
     (setq n 0))
   (unless (< n elaiza-llamafile-max-attempts)
     (error "Could not start %s (%s)" (elaiza-llamafile-name llamafile-backend)
            (elaiza-llamafile-filename llamafile-backend)))
   (elaiza-llamafile-ping
+   llamafile-backend
    (lambda (running)
-     (elaiza-debug 'llamafile "Llamafile server running: %S" running)
+     (elaiza-debug 'llamafile-start "Llamafile server running: %S" running)
      (if (not running)
          (elaiza-llamafile--start
-          (if prefix
-              (elaiza-llamafile-select-model)
-            (elaiza-llamafile--backend-or-default llamafile-backend))
+          llamafile-backend
           download
           callback
           n)
        (when callback
-         (funcall callback))))
-   llamafile-backend))
+         (elaiza-debug 'llamafile-start "Llamafile already running. Calling callback.")
+         (funcall callback))))))
 
-(cl-defstruct (elaiza-llamafile (:include elaiza-backend))
+(cl-defstruct (elaiza-llamafile
+               (:include elaiza-backend
+                         (pre-request-function
+                          (lambda (backend callback)
+                            (elaiza-debug 'pre-request-function "calling callback.")
+                            (elaiza-llamafile-start nil backend t callback 0)))))
   "Generic Llamafile."
   (filename nil :type string)
   (url nil :type string)
@@ -155,6 +173,7 @@ Adds backend to `elaiza-available-backends'."
          :name (file-name-base filename)
          :filename filename
          :url 'nil)))
+    (elaiza-debug 'llamafile-select-model "Selected %S" llamafile)
     (elaiza-add-available-backend llamafile)
     llamafile))
 
@@ -177,69 +196,76 @@ Call CALLBACK with response."
   (elaiza-debug 'llamafile-health "Pinging %s" url)
   (url-retrieve url
    (lambda (status)
+     (elaiza-debug 'llamafile-health "Result %S" status)
      (if (plist-get status :error)
          (funcall callback nil)
        (funcall callback t)))
    nil t)
   nil))
 
-(defun elaiza-llamafile-ping (callback &optional llamafile-backend)
+(defun elaiza-llamafile-ping (llamafile-backend callback )
   "Check if LLAMAFILE-BACKEND is online.
 Use `elaiza-llamafile-default-model' if LLAMAFILE-BACKEND is nil.
 Call CALLBACK if LLAMAFILE-BACKEND status as argument."
-  (if (elaiza-llamafile-running-p)
-      (funcall callback t)
-    (elaiza-llamafile--health (elaiza-llamafile--backend-or-default llamafile-backend)
-                              callback))
-  nil)
+  (elaiza-debug 'elaiza-llamafile-ping "Llamafile server status %S" (elaiza-llamafile-running-p))
+  (if (not (elaiza-llamafile-running-p))
+      (funcall callback nil)
+    (elaiza-llamafile--health  llamafile-backend callback)))
 
 (defun elaiza-llamafile--start (llamafile-backend download callback n)
   "Start the LLAMAFILE-BACKEND server without pinging.
-If you want to start the server interactively see `elaiza-llamafile-start'.
 DOWNLOAD Llamafile if not exist and non-nil.
 After starting, call CALLBACK via `elaiza-llamafile-start'
-and increase startup counter N."
-  (elaiza-debug 'llamafile--start "Starting")
+and increase startup counter N.
+CALLBACK is an `elaiza--request'.
+
+If you want to start the server interactively see `elaiza-llamafile-start'."
   (let ((file (elaiza-llamafile-filename llamafile-backend)))
     ;; Check if Llamafile exists.
-    (unless (file-exists-p file)
-      (if (and download
-               (yes-or-no-p (format "Llamafile %s does not exist; download? "
-                                    file)))
-          ;; Download Llamafile then start.
-          (elaiza-llamafile-download
-           (elaiza-llamafile-url llamafile-backend)
-           file
-           (lambda ()
-             (elaiza-add-available-backend llamafile-backend)
-             (elaiza-llamafile-start nil llamafile-backend nil callback 0)))
-        (signal 'file-error (format "%s does not exist" file))))
-    ;; We have a Llamafile. Let's start the server.
-    (unless (file-executable-p file)
-      (set-file-modes file (logior executable-chmod (file-modes file))))
-    (message "Starting %s..." file)
-    (async-start-process "elaiza-llamafile"
-                         "sh"
-                         (lambda (_) (elaiza-debug 'llamafile "process ended."))
-                         (expand-file-name file)
-                         "-ngl"
-                         "--unsecure"
-                         "--nobrowser")
-    (async-start-process
-     "elaiza-wait-for-startup"
-     "sleep"
-     ;; Starting the server takes some time.
-     ;; Avoid a block call and wait `elaiza-llamafile-startup' seconds.
-     (lambda (_)
-       (elaiza-debug 'llamafile "Slept; hoping Llamafile server is now online.")
-       (elaiza-llamafile-start nil llamafile-backend nil callback (1+ n)))
-     elaiza-llamafile-startup)))
+    (if (not (file-exists-p file))
+        (if (and download
+                 (yes-or-no-p (format "Llamafile %s does not exist; download? "
+                                      file)))
+            ;; Download Llamafile then start.
+            (elaiza-llamafile-download
+             (elaiza-llamafile-url llamafile-backend)
+             file
+             (lambda ()
+               (elaiza-add-available-backend llamafile-backend)
+               (elaiza-llamafile--start llamafile-backend nil callback 0)))
+          (signal 'file-error (format "%s does not exist" file)))
+      ;; We have a Llamafile. Let's start the server.
+      (progn
+        (unless (file-executable-p file)
+          (set-file-modes file (logior executable-chmod (file-modes file))))
+        (unless (elaiza-llamafile-running-p)
+          (elaiza-debug 'llamafile--start "Starting %s..." file)
+          (message "Starting %s..." file)
+          (async-start-process "elaiza-llamafile"
+                               "sh"
+                               (lambda (_) (elaiza-debug 'llamafile "process ended."))
+                               (expand-file-name file)
+                               "-ngl"
+                               "--unsecure"
+                               "--nobrowser"))
+        (async-start-process
+         "elaiza-wait-for-startup"
+         "sleep"
+         ;; Starting the server takes some time.
+         ;; Avoid a block call and wait `elaiza-llamafile-startup' seconds.
+         (lambda (_)
+           (elaiza-debug
+            'llamafile--start
+            "Slept %s seconds; checking if Llamafile server is now online."
+            elaiza-llamafile-startup)
+           (elaiza-llamafile-start nil llamafile-backend nil callback (1+ n)))
+         elaiza-llamafile-startup)))))
 
 (defun elaiza-llamafile-stop ()
   "Kill Llamafile process."
   (interactive)
-  (elaiza-debug 'llamafile-stop "stop llamafile.")
-  (kill-process "elaiza-llamafile"))
+  (kill-process "elaiza-llamafile")
+  (elaiza-debug 'elaiza-llamafile "server stopped."))
 
 (provide 'elaiza-llamafile)
 ;;; elaiza-llamafile.el ends here

@@ -17,15 +17,8 @@
 (require 'cl-lib)
 (require 'url-http)
 (require 'mm-decode)
+(require 'elaiza-backends)
 (require 'elaiza-utils)
-
-(defcustom elaiza-request-pre-request-functions
-  (lambda (_backend callback)
-    (funcall callback))
-  "List of functions to call before making an `elaiza-request'.
-elaiza-backend and callback to `elaiza--request' as argument."
-  :group 'elaiza
-  :type 'hook)
 
 (defvar elaiza-request--buffer nil
   "Buffer-local variable to keep track of the current connection.
@@ -63,11 +56,13 @@ Run (async) `elaiza-request--after-change-function' before request.
 For example, to check if the backend is online.
 After a successful request ON-SUCCESS is called.
 For resolving the streamed response ON-STREAMED-RESPONSE is used."
-  (run-hook-with-args
-   'elaiza-request-pre-request-functions
-   backend
-   (lambda ()
-     (funcall #'elaiza--request prompt system-prompt on-success on-streamed-response backend elaiza-buffer))))
+  (let ((pre-request (elaiza-backend-pre-request-function backend))
+        (callback (lambda ()
+                    (elaiza-debug 'elaiza-request "Making request")
+                    (funcall #'elaiza--request prompt system-prompt on-success on-streamed-response backend elaiza-buffer))))
+    (if pre-request
+      (funcall pre-request backend callback)
+      (funcall callback))))
 
 (defun elaiza-request--after-change-function (on-streamed-response backend)
   "Function is intended to be used as `after-change-functions' hook.

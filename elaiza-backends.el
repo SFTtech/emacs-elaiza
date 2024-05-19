@@ -17,7 +17,8 @@
 
 (cl-defstruct elaiza-backend
   "Struct for backend-specific dispatching."
-  name)
+  name
+  (pre-request-function nil :type 'function))
 
 (defvar elaiza-backends-integrations-alist nil
   "LLM backends that are incorporated into ELAIZA.")

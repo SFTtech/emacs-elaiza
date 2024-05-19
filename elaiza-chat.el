@@ -39,7 +39,15 @@ DO NOT USE MARKDOWN.")
 Send PROMPT to llm with a custom SYSTEM-PROMPT.
 Select LLM when prefixed with `C-u'.
 Save prompt as property unles DISCARD-PROMPT is non-nil.
-Show chat in BUFFER-NAME."
+Show chat in BUFFER-NAME.
+
+The chat process works as follows:
+Send inital PROMPT and SYSTEM-PROMPT to BACKEND by calling `elaiza-request'.
+Before making the actual call, execute `elaiza-backend-pre-request-function'.
+This allows us to set up inital requirements, for example, starting the llamafile server.
+The `elaiza-backend-pre-request-function' calls `elaiza--request' as callback.
+Upon receiving the streamed response it is inserted using `elaiza-chat--insert-response'.
+Incoming responses are detected using an `after-change-functions' hook on the request buffer."
   (interactive "sPrompt: \nP")
   (unless buffer-name (setq buffer-name (generate-new-buffer-name
                        (concat "*elaiza: " (substring prompt 0 (min (length prompt) 20)) "*"))))
@@ -68,6 +76,7 @@ Choose backend when PREFIX is non-nil."
   (interactive "P")
   (if (boundp 'elaiza--backend)
       (progn
+        ; Select and a different backend and save preference when prefixed.
         (setq-local elaiza--backend (elaiza-query-backend prefix elaiza--backend))
         (insert "\n")
         (elaiza-chat--send (elaiza-chat--split-text-by-role)
@@ -89,10 +98,12 @@ Return POINT after insertion"
         (point)))))
 
 (defun elaiza-chat--send (prompt system-prompt backend &optional elaiza-buffer)
-  "Send PROMPT and SYSTEM-PROMPT to BACKEND."
-  (elaiza-debug 'elaiza--send "%S" prompt)
-  (let ((elaiza-buffer (current-buffer))
-        (start (point)))
+  "Send PROMPT and SYSTEM-PROMPT to BACKEND.
+
+By keeping track of the chat buffer, ELAIZA-BUFFER,
+we can interrupt the conversation using `elaiza-chat-interrupt'."
+  (elaiza-debug 'elaiza-chat--send "%S" prompt)
+  (let ((start (point)))
     (elaiza-request
      prompt
      system-prompt
@@ -103,7 +114,7 @@ Return POINT after insertion"
            (setq-local elaiza-request--buffer nil))
        (when (plist-get status :error)
          (message (buffer-substring-no-properties (point-min) (point-max)))
-         (error "Elaiza request error")))
+         (warn "Elaiza request error")))
      ;; on-streamed-response
      (lambda (response-delta)
        (setq start (elaiza-chat--insert-response response-delta elaiza-buffer start)))

@@ -67,7 +67,9 @@
 See https://platform.openai.com/docs/api-reference/chat
 Add SYSTEM-PROMPT if non-nil.
 See https://github.com/ggerganov/llama.cpp/blob/master/examples/server/README.md#change-system-prompt-on-runtime"
-  (let ((headers `(("authorization" . ,(concat "Bearer " (elaiza-openai-get-api-key)))
+  (let ((headers `(("authorization" . ,(encode-coding-string
+                                        (concat "Bearer " (elaiza-openai-get-api-key))
+                                        'utf-8))
                    ("content-type" . "application/json")
                    ("accept-charset" . "utf-8")))
         (body (list (cons 'messages (if system-prompt (append

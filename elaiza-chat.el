@@ -88,7 +88,7 @@ Choose backend when PREFIX is non-nil."
 (defun elaiza-chat--insert-response (response buffer point)
   "Insert RESPONSE into BUFFER at POINT.
 Return POINT after insertion"
-  (elaiza-debug 'elaiza-chat--insert-response response)
+  (elaiza-debug 'elaiza-chat--insert-response "%s" response)
   (with-current-buffer
       buffer
     (when response

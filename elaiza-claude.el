@@ -60,7 +60,9 @@
   "Send MESSAGES to BACKEND: Anthropic's Claude.
 Add SYSTEM-PROMPT if non-nil.
 See https://docs.anthropic.com/claude/reference/getting-started-with-the-api."
-  (let ((headers `(("x-api-key" . ,(elaiza-claude-get-api-key))
+  (let ((headers `(("x-api-key" . ,(encode-coding-string
+                                    (elaiza-claude-get-api-key)
+                                    'utf-8))
                    ("anthropic-version" . "2023-06-01")
                    ("content-type" . "application/json")
                    ("accept-charset" . "utf-8")))

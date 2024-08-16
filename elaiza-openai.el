@@ -41,6 +41,12 @@
                                       (max_tokens 'nil))) ; 12800
   "The fastest and most affordable flagship model")
 
+(cl-defstruct (elaiza-gpt-4o-mini (:include elaiza-openai (name "GPT-4o-mini")
+                                            (key nil)
+                                            (model "gpt-4o-mini")
+                                            (max_tokens 'nil))) ; 16384
+  "Our affordable and intelligent small model for fast, lightweight tasks")
+
 (cl-defstruct (elaiza-gpt-3.5-turbo (:include elaiza-openai
                                               (name "GPT-3.5 Turbo")
                                               (key nil)

@@ -27,7 +27,12 @@
 Start with the appropriate title first.
 Follow-up responses should start with #+ELAIZA: followed by a new-line.
 IMPORTANT: You will reply only in the Emacs ORG-MODE format.
-DO NOT USE MARKDOWN.")
+DO NOT USE MARKDOWN.
+When returning source code use the following syntax:
+#+begin_src <insert programming language>
+<insert code>
+#+end_src
+")
   "For a guide to system prompts see https://matt-rickard.com/a-list-of-leaked-system-prompts."
   :group 'elaiza
   :type 'string)

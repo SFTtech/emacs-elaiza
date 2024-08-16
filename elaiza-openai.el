@@ -89,11 +89,14 @@ See https://github.com/ggerganov/llama.cpp/blob/master/examples/server/README.md
         (url "https://api.openai.com/v1/chat/completions"))
     (list url headers (encode-coding-string (json-encode body) 'utf-8))))
 
-(cl-defmethod elaiza-request--parse-streamed-response (message-delta (_ elaiza-openai))
-  "Parse a partial stream response (MESSAGE-DELTA) from ELAIZA-BACKEND Chatgpt."
-  (when (and message-delta
-             (string-match ":{\"content\":\\(.*?\\)},\"logprobs\"" message-delta))
-    (decode-coding-string (json-read-from-string (match-string 1 message-delta)) 'utf-8)))
+(cl-defmethod elaiza-request--parse-streamed-response (message-delta (_ elaiza-openai) on-end)
+  "Parse a partial stream response (MESSAGE-DELTA) from ELAIZA-BACKEND Chatgpt.
+Call ON-END when `finish_reason` stop."
+  (if (and message-delta
+           (string-match ":{\"content\":\\(.*?\\)},\"logprobs\"" message-delta))
+      (decode-coding-string (json-read-from-string (match-string 1 message-delta)) 'utf-8)
+    (when (and on-end (string-match "\"finish_reason\":\"stop\"" message-delta))
+      (funcall on-end))))
 
 (provide 'elaiza-openai)
 ;;; elaiza-openai.el ends here

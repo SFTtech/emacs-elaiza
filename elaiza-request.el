@@ -27,12 +27,14 @@ Used for interrupting connections.")
 (cl-defgeneric elaiza-request--encode (messages system-prompt backend)
   "Encode MESSAGES and SYSTEM-PROMPT for BACKEND request.")
 
-(defun elaiza--request (prompt system-prompt on-success on-streamed-response backend &optional elaiza-buffer)
+(defun elaiza--request (prompt system-prompt on-success on-streamed-response backend &optional elaiza-buffer on-end)
   "Use `elaiza-request'.
 
 Send PROMPT and SYSTEM-PROMPT to BACKEND.
 After a successful request ON-SUCCESS is called.
-For resolving the streamed response ON-STREAMED-RESPONSE is used."
+For resolving the streamed response ON-STREAMED-RESPONSE is used.
+When the last chunk was sent ON-END is called.
+"
   (let ((url-request-method "POST")
         request-buffer)
     (cl-multiple-value-bind (url url-request-extra-headers url-request-data)
@@ -41,7 +43,7 @@ For resolving the streamed response ON-STREAMED-RESPONSE is used."
       (setq request-buffer (url-retrieve url on-success 'nil))
       (with-current-buffer request-buffer
         (add-hook 'after-change-functions
-                  (elaiza-request--after-change-function on-streamed-response backend)
+                  (elaiza-request--after-change-function on-streamed-response backend on-end)
                   nil
                   t))
       (when elaiza-buffer
@@ -49,47 +51,51 @@ For resolving the streamed response ON-STREAMED-RESPONSE is used."
           (setq-local elaiza-request--buffer request-buffer)))
         request-buffer)))
 
-(defun elaiza-request (prompt system-prompt on-success on-streamed-response backend &optional elaiza-buffer)
+(defun elaiza-request (prompt system-prompt on-success on-streamed-response backend &optional elaiza-buffer on-end)
   "Send PROMPT and SYSTEM-PROMPT to BACKEND.
 
 Run (async) `elaiza-request--after-change-function' before request.
 For example, to check if the backend is online.
 After a successful request ON-SUCCESS is called.
-For resolving the streamed response ON-STREAMED-RESPONSE is used."
+For resolving the streamed response ON-STREAMED-RESPONSE is used.
+When the last chunk was sent ON-END is called."
   (let ((pre-request (elaiza-backend-pre-request-function backend))
         (callback (lambda ()
                     (elaiza-debug 'elaiza-request "Making request")
-                    (funcall #'elaiza--request prompt system-prompt on-success on-streamed-response backend elaiza-buffer))))
+                    (funcall #'elaiza--request prompt system-prompt on-success on-streamed-response backend elaiza-buffer on-end))))
     (if pre-request
       (funcall pre-request backend callback)
       (funcall callback))))
 
-(defun elaiza-request--after-change-function (on-streamed-response backend)
+(defun elaiza-request--after-change-function (on-streamed-response backend &optional on-end)
   "Function is intended to be used as `after-change-functions' hook.
 
 ON-STREAMED-RESPONSE: Callback with the response string as argument.
+ON-END: Callback when the response is complete.
 Parsing is BACKEND specific."
   (lambda (beg end _)
     ;; (elaiza-debug 'request (buffer-substring-no-properties beg end))
-    (elaiza-request--process-streamed-response beg end on-streamed-response backend)))
+    (elaiza-request--process-streamed-response beg end on-streamed-response backend on-end)))
 
-(defun elaiza-request--process-streamed-response (beg end on-streamed-response backend)
+(defun elaiza-request--process-streamed-response (beg end on-streamed-response backend &optional on-end)
   "Process streamed response from BEG to END via BACKEND.
 Parsed response is passed to ON-STREAMED-RESPONSE callback.
+ON-END: Callback when the response is complete.
 
 Check response line-by-line for text delta.
 BEG and END refer to `after-change-functions' hook's arguments."
   (goto-char beg)
   (while (< (point) end)
     (when-let ((message-delta (buffer-substring-no-properties (point) (progn (end-of-line) (point))))
-               (result (elaiza-request--parse-streamed-response message-delta backend)))
+               (result (elaiza-request--parse-streamed-response message-delta backend on-end)))
       ;; Mark LLM text for a continued conversation.
       (add-text-properties 0 (length result) '(role "assistant") result)
       (funcall on-streamed-response result))
     (forward-line 1)))
 
-(cl-defgeneric elaiza-request--parse-streamed-response (message-delta backend)
-  "Parse MESSAGE-DELTA of the request buffer from streamed response with BACKEND.")
+(cl-defgeneric elaiza-request--parse-streamed-response (message-delta backend &optional on-end)
+  "Parse MESSAGE-DELTA of the request buffer from streamed response with BACKEND.
+Call ON-END if last message.")
 
 (defun elaiza-request-url-copy-file (url newname &optional ok-if-already-exists callback)
   "Async implementation of `url-copy-file': copy URL to NEWNAME.

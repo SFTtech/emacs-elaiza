@@ -15,12 +15,17 @@
 ;;; Code:
 (require 'elaiza-chat)
 
+(defcustom elaiza-businesscard-default-dir
+  nil
+  "Default directory.")
 
 ;;;###autoload
-(defun elaiza-businesscard (file-path)
+(defun elaiza-businesscard (&optional file-path)
   "Parse the content of a businesscard.
 FILE-PATH to the businesscard (pdf or jpg)."
-  (interactive "fPath: ")
+  (interactive)
+  (unless file-path
+    (setq file-path (read-file-name "Path: " elaiza-businesscard-default-dir)))
   (unless (file-regular-p file-path)
     (error "The path '%s' is not a file" file-path))
 
@@ -32,14 +37,18 @@ FILE-PATH to the businesscard (pdf or jpg)."
     (when (string-equal file-suffix "pdf")
       (unless (file-exists-p jpg-path)
         (message "Converting '%s' to '%s'" file-path jpg-path)
-        (let ((result (shell-command-to-string (format "magick %s %s" file-path jpg-path))))
+        (let ((result (shell-command-to-string (format "magick %s %s"
+                                                       (shell-quote-argument file-path)
+                                                       (shell-quote-argument jpg-path)))))
           (unless (equal result "")
             (error "Error during conversion: %s" result)))))
 
     ;; Resize the image
     (unless (file-exists-p resized-path)
       (message "Resizing '%s' to 512x512" file-path)
-      (let ((result (shell-command-to-string (format "magick %s -resize 512x512 %s" file-path resized-path))))
+      (let ((result (shell-command-to-string (format "magick %s -resize 512x512 %s"
+                                                     (shell-quote-argument file-path)
+                                                     (shell-quote-argument resized-path)))))
         (unless (equal result "")
           (error "Error during resizing: %s" result))))
 
@@ -80,8 +89,8 @@ FILE-PATH to the businesscard (pdf or jpg)."
                             (switch-to-buffer (rename-buffer (generate-new-buffer-name buffer-name)))
                             (org-mode)
                             (goto-char (point-max))
-                            (insert (format "\n\n LinkedIn: [[https://linkedin.com/search/results/people/?keywords=%S][Search]]" name)))))))
-    ))
+                            (insert (format "\n#+attr_org: :width 300\n [[file:%s]]" jpg-path))
+                            (insert (format "\n\n LinkedIn: [[https://linkedin.com/search/results/people/?keywords=%S][Search]]" name)))))))))
 
 (defun elaiza-businesscard--extract-name-from-org-list ()
   "Extract names from an org list in the current buffer."

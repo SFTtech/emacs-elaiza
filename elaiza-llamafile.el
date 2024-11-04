@@ -166,7 +166,7 @@ See https://github.com/ggerganov/llama.cpp/blob/master/examples/server/README.md
                      "/v1/chat/completions")))
     (list url headers (encode-coding-string (json-encode body) 'utf-8))))
 
-(cl-defmethod elaiza-request--parse-streamed-response (message-delta (_ elaiza-llamafile))
+(cl-defmethod elaiza-request--parse-streamed-response (message-delta (_ elaiza-llamafile) _)
   "Parse a partial stream response (MESSAGE-DELTA) from ELAIZA-BACKEND Llamafile."
   (when (and message-delta
              (string-match "\"delta\":{\"content\":\\(.*?\\)}" message-delta))

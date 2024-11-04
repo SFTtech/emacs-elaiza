@@ -78,7 +78,9 @@ Similarly for a Llamafile:
   (elaiza-backends--add-integration (make-elaiza-gpt-3.5-turbo))
   (elaiza-backends--add-integration (make-elaiza-claude-opus))
   (elaiza-backends--add-integration (make-elaiza-claude-sonnet))
-  (elaiza-backends--add-integration (make-elaiza-claude-haiku)))
+  (elaiza-backends--add-integration (make-elaiza-claude-haiku))
+  (elaiza-backends--add-integration (make-elaiza-claude-sonnet-3-5))
+  (elaiza-backends--add-integration (make-elaiza-claude-haiku-3-5)))
 
 (defun elaiza-query-prompt ()
   "Query for PROMPT in the mini buffer."

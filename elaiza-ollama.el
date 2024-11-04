@@ -43,7 +43,7 @@ Add SYSTEM-PROMPT if non-nil."
         (url (concat "http://localhost:" (elaiza-ollama-port backend) "/api/chat")))
     (list url headers (encode-coding-string (json-encode body) 'utf-8))))
 
-(cl-defmethod elaiza-request--parse-streamed-response (message-delta (_ elaiza-ollama))
+(cl-defmethod elaiza-request--parse-streamed-response (message-delta (_ elaiza-ollama) _)
   "Parse a partial stream response (MESSAGE-DELTA) from ELAIZA-BACKEND Ollama."
   (when (and message-delta
              (string-match "\"content\":\\(.*?\\)}" message-delta))

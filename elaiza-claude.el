@@ -26,15 +26,27 @@
 
 (cl-defstruct (elaiza-claude-opus (:include elaiza-anthropic (name "Claude 3 Opus")
                                             (key nil)
-                                            (model "claude-3-opus-20240229")
+                                            (model "claude-3-opus-latest")
                                             (max_tokens 4096)))
- "Most powerful model for highly complex tasks".)
+ "Powerful model for highly complex tasks.")
+
+(cl-defstruct (elaiza-claude-sonnet-3-5 (:include elaiza-anthropic (name "Claude 3.5 Sonnet")
+                                            (key nil)
+                                            (model "claude-3-5-sonnet-latest")
+                                            (max_tokens 8192)))
+  "Our most intelligent model.")
 
 (cl-defstruct (elaiza-claude-sonnet (:include elaiza-anthropic (name "Claude 3 Sonnet")
                                             (key nil)
                                             (model "claude-3-sonnet-20240229")
                                             (max_tokens 4096)))
-  "Ideal balance of intelligence and speed for enterprise workloads.")
+  "Balance of intelligence and speed.")
+
+(cl-defstruct (elaiza-claude-haiku-3-5 (:include elaiza-anthropic (name "Claude 3.5 Haiku")
+                                            (key nil)
+                                            (model "claude-3-5-haiku-20241022")
+                                            (max_tokens 8192)))
+  "Our fastest model.")
 
 (cl-defstruct (elaiza-claude-haiku (:include elaiza-anthropic (name "Claude 3 Haiku")
                                             (key nil)
@@ -79,7 +91,7 @@ See https://docs.anthropic.com/claude/reference/getting-started-with-the-api."
       (push (cons 'system system-prompt) body))
     (list url headers (encode-coding-string (json-encode body) 'utf-8))))
 
-(cl-defmethod elaiza-request--parse-streamed-response (message-delta (_ elaiza-anthropic))
+(cl-defmethod elaiza-request--parse-streamed-response (message-delta (_ elaiza-anthropic) _)
   "Parse a partial stream response (MESSAGE-DELTA) from ELAIZA-BACKEND Claude."
   (when (and message-delta
              (string-match "\"text_delta\",\"text\":\\(.*?\\)}" message-delta))

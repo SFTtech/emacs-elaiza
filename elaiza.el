@@ -71,6 +71,8 @@ Similarly for a Llamafile:
 )'"
   (elaiza-backends--add-integration elaiza-default-model)
   (elaiza-backends--add-integration elaiza-llamafile-default-model)
+  (elaiza-backends--add-integration (make-elaiza-o1))
+  (elaiza-backends--add-integration (make-elaiza-o1-mini))
   (elaiza-backends--add-integration (make-elaiza-gpt-4o))
   (elaiza-backends--add-integration (make-elaiza-gpt-4o-mini))
   (elaiza-backends--add-integration (make-elaiza-gpt-4-turbo))

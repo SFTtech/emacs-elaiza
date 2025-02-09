@@ -23,6 +23,18 @@
   "For a list of available models, see https://platform.openai.com/docs/models."
   key model max_tokens)
 
+(cl-defstruct (elaiza-o1 (:include elaiza-openai (name "o1")
+                                   (key nil)
+                                   (model "o1-preview")
+                                   (max_tokens 32768)))
+  "Reasoning model designed to solve hard problems across domains.")
+
+(cl-defstruct (elaiza-o1-mini (:include elaiza-openai (name "o1-mini")
+                                        (key nil)
+                                        (model "o1-mini")
+                                        (max_tokens 65536)))
+  "Faster and cheaper reasoning model particularly good at coding, math, and science.")
+
 (cl-defstruct (elaiza-gpt-4-turbo (:include elaiza-openai (name "GPT-4 Turbo")
                                             (key nil)
                                             (model "gpt-4-turbo")

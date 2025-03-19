@@ -1,5 +1,5 @@
 #+title: ELAIZA
-#+LAST_MODIFIED: [2024-08-16 Fri 20:33]
+#+LAST_MODIFIED: [2025-03-19 Wed 15:54]
 #+HTML: <img src="./assets/logo.webp" width="256px" align="right" alt="A cyberpunk-themed scene with a sleeker, less muscular hacker bunny wearing dark glasses, a stylish futuristic hoodie, and a visible black tank top beneath. The bunny, now with a slimmer, more toned build, exhibits a concentrated look as it types on an old-fashioned computer terminal. A half-eaten orange carrot is next to the keyboard. The scene is vibrantly lit with neon lights, enhancing the cyberpunk ambiance. A speech bubble above the bunny reads 'What's up Doc?' in a bold, cyber font, and the screen displays 'ELAIZA' in green monospaced font."/>
 
 
@@ -81,7 +81,7 @@ machine api.openai.com port https login elaiza password <your-api-key>
 Use =GPT-4 Turbo= as your default model by adding the following to your =config.el=:
 #+begin_src emacs-lisp
 (use-package! elaiza
-  :config (setq elaiza-default-model (make-elaiza-gpt-4-turbo))
+  :config (setq elaiza-default-model (make-elaiza-gpt-4-turbo)))
 #+end_src
 *** Example: Claude
 Create a key at https://console.anthropic.com/settings/keys.
@@ -92,9 +92,24 @@ machine api.anthropic.com port https login elaiza password <your-api-key>
 Use =Claude 3 Opus= as your default model by adding the following to your =config.el=:
 #+begin_src emacs-lisp
 (use-package! elaiza
-  :config (setq elaiza-default-model (make-elaiza-claude-opus))
+  :config (setq elaiza-default-model (make-elaiza-claude-opus)))
 #+end_src
-
+*** Example: Ollama
+#+begin_src emacs-lisp
+(use-package! elaiza
+  :config
+  (cl-defstruct (elaiza-ollama-qwq (:include elaiza-ollama (name "Qwq")
+                                   (port "11434")
+                                   (model "qwq"))))
+  (cl-defstruct (elaiza-ollama-qwen2.5-coder (:include elaiza-ollama (name "Qwen 2.5 coder")
+                                             (port "11434")
+                                             (model "qwen2.5-coder:32b"))))
+  (elaiza-backends--add-integration (make-elaiza-ollama-qwq))
+  (elaiza-backends--add-integration (make-elaiza-ollama-qwen2.5-coder))
+  ;; update the available backends for manual switching `M-x elaiza-change-default-model`
+  (setq elaiza-available-backends elaiza-backends-integrations-alist)
+  (setq! elaiza-default-model (make-elaiza-ollama-qwen2.5-coder)))
+#+end_src
 
 * Supported Backends
 

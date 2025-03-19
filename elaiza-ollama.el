@@ -46,7 +46,7 @@ Add SYSTEM-PROMPT if non-nil."
 (cl-defmethod elaiza-request--parse-streamed-response (message-delta (_ elaiza-ollama) _)
   "Parse a partial stream response (MESSAGE-DELTA) from ELAIZA-BACKEND Ollama."
   (when (and message-delta
-             (string-match "\"content\":\\(.*?\\)}" message-delta))
+             (string-match "\"content\":\\(.*?\\)},\"done\"" message-delta))
     (decode-coding-string (json-read-from-string (match-string 1 message-delta)) 'utf-8)))
 
 (provide 'elaiza-ollama)

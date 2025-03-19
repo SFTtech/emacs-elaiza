@@ -94,7 +94,7 @@ See https://docs.anthropic.com/claude/reference/getting-started-with-the-api."
 (cl-defmethod elaiza-request--parse-streamed-response (message-delta (_ elaiza-anthropic) _)
   "Parse a partial stream response (MESSAGE-DELTA) from ELAIZA-BACKEND Claude."
   (when (and message-delta
-             (string-match "\"text_delta\",\"text\":\\(.*?\\)}" message-delta))
+             (string-match "\"text_delta\",\"text\":\\(.*?\\)}\n" message-delta))
     (decode-coding-string (json-read-from-string (match-string 1 message-delta)) 'utf-8)))
 
 (provide 'elaiza-claude)
